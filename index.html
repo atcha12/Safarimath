@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Safari - Learn Math with Cinnamon!</title>
+  
+  <!-- PWA & Mobile Settings -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#F59E0B">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts: Fredoka & Quicksand for playful child-friendly typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'cursive', 'sans-serif'],
+            quicksand: ['Quicksand', 'sans-serif']
+          },
+          keyframes: {
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-6px)' }
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-10px) rotate(2deg)' }
+            },
+            popIn: {
+              '0%': { transform: 'scale(0.85)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          },
+          animation: {
+            'bounce-gentle': 'bounceGentle 2s ease-in-out infinite',
+            'float-slow': 'floatSlow 4s ease-in-out infinite',
+            'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Fredoka', cursive, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-preserve-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fdf2e9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f97316;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-amber-200">
+
+  <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b-2 border-amber-200 px-4 py-2.5 shadow-sm">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand / Logo Button -->
+      <button onclick="switchView('title')" class="flex items-center gap-2 group text-left focus:outline-none" title="Back to Title Screen">
+        <span class="text-3xl group-hover:scale-110 transition-transform">🦁</span>
+        <div>
+          <h1 id="appTitleText" class="text-xl sm:text-2xl font-black tracking-wide bg-gradient-to-r from-amber-600 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+            Math Safari
+          </h1>
+          <p id="appSubTitleText" class="text-xs text-amber-700 font-quicksand font-bold -mt-1 hidden sm:block">Explore & Learn with Cinnamon the Unicorn!</p>
+        </div>
+      </button>
+
+      <!-- Stats & Controls Bar -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Change Realm Button -->
+        <button id="changeOpHeaderBtn" onclick="switchView('title')" class="hidden sm:flex items-center gap-1.5 bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 px-3 py-1 rounded-2xl text-purple-900 font-bold shadow-sm transition active:scale-95 text-xs sm:text-sm">
+          <span>🗺️</span> Realms
+        </button>
+
+        <!-- Daily Streak Counter Badge -->
+        <button id="streakBtn" onclick="showStreakInfoModal()" class="flex items-center gap-1.5 bg-orange-100 hover:bg-orange-200 border-2 border-orange-300 px-2.5 sm:px-3 py-1 rounded-2xl text-orange-900 font-bold shadow-sm transition active:scale-95" title="Daily Practice Streak">
+          <span class="text-lg animate-bounce-gentle">🔥</span>
+          <span id="topStreakCount" class="text-sm sm:text-base font-black">0</span>
+        </button>
+
+        <!-- Star Currency Counter -->
+        <div class="flex items-center gap-1.5 bg-amber-100 border-2 border-amber-300 px-2.5 sm:px-3 py-1 rounded-2xl text-amber-900 font-bold shadow-sm">
+          <span class="text-lg text-amber-500">⭐</span>
+          <span id="topStarCount" class="text-sm sm:text-base font-black">0</span>
+        </div>
+
+        <!-- Lo-Fi Background Music Toggle -->
+        <button id="musicToggleBtn" onclick="LofiMusic.toggle()" class="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 px-2.5 sm:px-3 py-1 rounded-2xl text-indigo-900 font-bold shadow-sm transition active:scale-95 text-xs sm:text-sm" title="Toggle Lo-Fi Study Music">
+          <span id="musicIcon" class="text-base">🎵</span>
+          <span class="hidden sm:inline font-black">Lo-Fi</span>
+          <span id="musicStatus" class="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-600">OFF</span>
+        </button>
+
+        <!-- Sound Audio Toggle -->
+        <button id="soundToggleBtn" onclick="SoundManager.toggleMute()" class="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 rounded-2xl text-base shadow-sm transition active:scale-95" title="Toggle Sound Effects">
+          <span id="soundIcon">🔊</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 w-full flex-grow">
+
+    <!-- VIEW 1: TITLE PAGE (OPERATION SELECTION REALMS) -->
+    <div id="view-title" class="space-y-8 animate-pop-in">
+      <div class="relative overflow-hidden bg-gradient-to-br from-amber-400 via-orange-400 to-pink-400 rounded-3xl p-6 sm:p-10 text-white shadow-2xl border-4 border-white text-center">
+        <div class="relative z-10 max-w-2xl mx-auto">
+          <span class="bg-white/20 text-white font-black text-xs sm:text-sm px-4 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-sm inline-block mb-3 shadow-sm">
+            ✨ Welcome to Math Safari ✨
+          </span>
+          <h2 class="text-3xl sm:text-5xl font-black mb-3 leading-tight tracking-tight drop-shadow-sm">
+            Choose Your Math Adventure!
+          </h2>
+          <p class="text-amber-100 font-quicksand font-bold text-base sm:text-xl mb-6">
+            Join Cinnamon the Unicorn to practice, play mini-games, and master your math superpowers!
+          </p>
+          <div class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/30 text-xs sm:text-sm font-bold text-white">
+            <span>🦄 Cinnamon says:</span>
+            <span class="italic">"Pick an adventure realm below to begin our safari!"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Operation Realm Cards -->
+      <div>
+        <h3 class="text-2xl font-black text-slate-800 mb-4 text-center sm:text-left flex items-center justify-center sm:justify-start gap-2">
+          <span>🧭</span> Safari Math Realms
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <!-- Multiplication Realm -->
+          <div onclick="selectOperation('multiply')" class="group cursor-pointer bg-gradient-to-b from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border-4 border-amber-300 hover:border-amber-400 rounded-3xl p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between transform hover:-translate-y-1 active:scale-95">
+            <div>
+              <div class="w-16 h-16 bg-amber-400 text-white rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-md group-hover:rotate-6 transition-transform">
+                ✖️
+              </div>
+              <span class="text-xs uppercase font-extrabold tracking-wider text-amber-700 block">Savannah Expedition</span>
+              <h4 class="text-2xl font-black text-slate-800 mb-2">Multiplication</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600 mb-4 leading-relaxed">
+                Visual arrays, times tables 1 to 12, rocket launches, and memory tricks.
+              </p>
+            </div>
+            <button class="w-full py-3 bg-amber-500 group-hover:bg-amber-600 text-white font-black rounded-2xl shadow transition text-sm flex items-center justify-center gap-2">
+              <span>🦁</span> Enter Realm
+            </button>
+          </div>
+
+          <!-- Division Realm -->
+          <div onclick="selectOperation('divide')" class="group cursor-pointer bg-gradient-to-b from-sky-50 to-blue-50 hover:from-sky-100 hover:to-blue-100 border-4 border-sky-300 hover:border-sky-400 rounded-3xl p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between transform hover:-translate-y-1 active:scale-95">
+            <div>
+              <div class="w-16 h-16 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-md group-hover:rotate-6 transition-transform">
+                ➗
+              </div>
+              <span class="text-xs uppercase font-extrabold tracking-wider text-sky-700 block">River Rapids</span>
+              <h4 class="text-2xl font-black text-slate-800 mb-2">Division</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600 mb-4 leading-relaxed">
+                Fair sharing and equal groupings! Master dividing as multiplication in reverse.
+              </p>
+            </div>
+            <button class="w-full py-3 bg-sky-500 group-hover:bg-sky-600 text-white font-black rounded-2xl shadow transition text-sm flex items-center justify-center gap-2">
+              <span>🐬</span> Enter Realm
+            </button>
+          </div>
+
+          <!-- Addition Realm -->
+          <div onclick="selectOperation('add')" class="group cursor-pointer bg-gradient-to-b from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border-4 border-emerald-300 hover:border-emerald-400 rounded-3xl p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between transform hover:-translate-y-1 active:scale-95">
+            <div>
+              <div class="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-md group-hover:rotate-6 transition-transform">
+                ➕
+              </div>
+              <span class="text-xs uppercase font-extrabold tracking-wider text-emerald-700 block">Jungle Canopy</span>
+              <h4 class="text-2xl font-black text-slate-800 mb-2">Addition</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600 mb-4 leading-relaxed">
+                Join animal friends together! Count on numbers, doubles, and combo sums.
+              </p>
+            </div>
+            <button class="w-full py-3 bg-emerald-500 group-hover:bg-emerald-600 text-white font-black rounded-2xl shadow transition text-sm flex items-center justify-center gap-2">
+              <span>🦜</span> Enter Realm
+            </button>
+          </div>
+
+          <!-- Subtraction Realm -->
+          <div onclick="selectOperation('subtract')" class="group cursor-pointer bg-gradient-to-b from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 border-4 border-rose-300 hover:border-rose-400 rounded-3xl p-6 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between transform hover:-translate-y-1 active:scale-95">
+            <div>
+              <div class="w-16 h-16 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-md group-hover:rotate-6 transition-transform">
+                ➖
+              </div>
+              <span class="text-xs uppercase font-extrabold tracking-wider text-rose-700 block">Desert Oasis</span>
+              <h4 class="text-2xl font-black text-slate-800 mb-2">Subtraction</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600 mb-4 leading-relaxed">
+                Take away items and find differences with fun visual arrays and pop challenges.
+              </p>
+            </div>
+            <button class="w-full py-3 bg-rose-500 group-hover:bg-rose-600 text-white font-black rounded-2xl shadow transition text-sm flex items-center justify-center gap-2">
+              <span>🐪</span> Enter Realm
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Trophies & Stats Bar -->
+      <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-4xl">🏆</span>
+          <div>
+            <h4 class="text-base font-black text-slate-800">Your Safari Passport</h4>
+            <p class="text-xs font-quicksand font-bold text-slate-500">Collect stars across all math realms to unlock stickers & badges!</p>
+          </div>
+        </div>
+        <button onclick="switchView('trophies')" class="w-full sm:w-auto px-5 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 font-extrabold rounded-2xl transition active:scale-95 text-sm flex items-center justify-center gap-2 shadow-sm">
+          <span>🎖️</span> View Trophy Room
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 2: REALM HUB / HOME -->
+    <div id="view-home" class="hidden space-y-8 animate-pop-in">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <button onclick="switchView('title')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>🗺️</span> Switch Math Realm
+        </button>
+        <span id="activeRealmBadge" class="text-sm font-black bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full">
+          Multiplication Realm ✖️
+        </span>
+      </div>
+
+      <!-- Hero Banner -->
+      <div id="homeHeroBanner" class="relative overflow-hidden bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 rounded-3xl p-6 sm:p-8 text-white shadow-xl border-4 border-white">
+        <div class="relative z-10 max-w-xl">
+          <span id="homeHeroTag" class="bg-white/20 text-white font-black text-xs sm:text-sm px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm inline-block mb-3">
+            Safari Expedition 🌟
+          </span>
+          <h2 id="homeHeroTitle" class="text-3xl sm:text-4xl font-black mb-2 leading-tight">Master Your Times Tables!</h2>
+          <p id="homeHeroSubtitle" class="text-amber-100 font-quicksand font-bold text-base sm:text-lg mb-6">
+            Practice visual arrays, blast off rockets, pop bubbles, and collect stickers with Cinnamon the Unicorn!
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <button onclick="startFlashcardMode()" class="bg-white hover:bg-amber-50 text-amber-700 font-black px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2 text-base">
+              <span>🚀</span> Start Daily Practice
+            </button>
+            <button onclick="switchView('trophies')" class="bg-amber-900/40 hover:bg-amber-900/60 text-white border-2 border-white/50 font-bold px-5 py-3 rounded-2xl transition active:scale-95 flex items-center gap-2">
+              <span>🏆</span> Trophy Room
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/30 flex items-center justify-around bg-black/10 rounded-2xl p-3 backdrop-blur-sm">
+          <div class="text-center px-2">
+            <span class="text-2xl sm:text-3xl block">⭐</span>
+            <span class="text-xs font-bold text-white/80 uppercase tracking-wider">Level</span>
+            <span id="heroLevel" class="text-xl font-bold text-white block">1</span>
+          </div>
+          <div class="w-px h-10 bg-white/40"></div>
+          <div class="text-center px-2">
+            <span class="text-2xl sm:text-3xl block">🎖️</span>
+            <span class="text-xs font-bold text-white/80 uppercase tracking-wider">Badges</span>
+            <span id="heroBadgeCount" class="text-xl font-bold text-white block">0/12</span>
+          </div>
+          <div class="w-px h-10 bg-white/40"></div>
+          <div class="text-center px-2">
+            <span class="text-2xl sm:text-3xl block">🔥</span>
+            <span class="text-xs font-bold text-white/80 uppercase tracking-wider">Streak</span>
+            <span id="heroStreakCount" class="text-xl font-bold text-white block">0 Days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Number Focus Selector (1-12) -->
+      <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-amber-100">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <h3 id="tableSelectorTitle" class="text-xl font-black text-slate-800">Choose Your Number Focus</h3>
+            <p id="tableSelectorSubtitle" class="text-xs text-slate-500 font-quicksand font-bold">Pick one number to practice or select "All Numbers" for a mixed safari!</p>
+          </div>
+          <button onclick="selectTable('all')" id="tabBtn-all" class="table-select-btn px-4 py-2 bg-amber-500 text-white border-2 border-amber-600 rounded-2xl font-bold text-sm shadow transition active:scale-95">
+            🌟 All Numbers (1-12)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2" id="tableSelectorGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Safari Activities Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Explorer Mode -->
+        <div onclick="startExplorerMode()" class="cursor-pointer bg-gradient-to-br from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 border-4 border-purple-200 rounded-3xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col justify-between">
+          <div>
+            <div class="w-14 h-14 bg-purple-500 text-white rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-md">
+              🔍
+            </div>
+            <h4 class="text-xl font-black text-purple-950 mb-1">Visual Patterns</h4>
+            <p class="text-xs font-quicksand font-bold text-purple-800 mb-4">
+              See repeated groups and colorful visual arrays!
+            </p>
+          </div>
+          <button class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow">
+            Explore 🔎
+          </button>
+        </div>
+
+        <!-- Flashcards Mode -->
+        <div onclick="startFlashcardMode()" class="cursor-pointer bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-4 border-blue-200 rounded-3xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col justify-between">
+          <div>
+            <div class="w-14 h-14 bg-blue-500 text-white rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-md">
+              🃏
+            </div>
+            <h4 class="text-xl font-black text-blue-950 mb-1">3D Flashcards</h4>
+            <p class="text-xs font-quicksand font-bold text-blue-800 mb-4">
+              Flip the cards, practice memory recall, and earn stars!
+            </p>
+          </div>
+          <button class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow">
+            Flip Cards 🃏
+          </button>
+        </div>
+
+        <!-- Rocket Launch Quiz -->
+        <div onclick="startRocketQuiz()" class="cursor-pointer bg-gradient-to-br from-rose-50 to-red-50 hover:from-rose-100 hover:to-red-100 border-4 border-rose-200 rounded-3xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col justify-between">
+          <div>
+            <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-md">
+              🚀
+            </div>
+            <h4 class="text-xl font-black text-rose-950 mb-1">Rocket Blastoff</h4>
+            <p class="text-xs font-quicksand font-bold text-rose-800 mb-4">
+              Answer 10 fast questions to fuel Cinnamon's rocket into space!
+            </p>
+          </div>
+          <button class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm shadow">
+            Launch Rocket 🚀
+          </button>
+        </div>
+
+        <!-- Bubble Pop Game -->
+        <div onclick="startBubbleGame()" class="cursor-pointer bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border-4 border-emerald-200 rounded-3xl p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex flex-col justify-between">
+          <div>
+            <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-md">
+              🫧
+            </div>
+            <h4 class="text-xl font-black text-emerald-950 mb-1">Bubble Pop</h4>
+            <p class="text-xs font-quicksand font-bold text-emerald-800 mb-4">
+              Pop floating bubbles with the correct answer before time runs out!
+            </p>
+          </div>
+          <button class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">
+            Pop Bubbles 🫧
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: PATTERN EXPLORER -->
+    <div id="view-explorer" class="hidden space-y-6 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <button onclick="switchView('home')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>⬅️</span> Back to Hub
+        </button>
+        <span class="text-sm font-extrabold text-purple-800 bg-purple-100 border border-purple-300 px-3 py-1 rounded-full">
+          Pattern Lab 🔍
+        </span>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-purple-100 space-y-6">
+        <div class="text-center">
+          <h3 class="text-2xl sm:text-3xl font-black text-purple-950">Visual Arrays & Patterns</h3>
+          <p class="text-xs sm:text-sm font-quicksand font-bold text-purple-600">See how numbers form groups and patterns!</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 sm:gap-6 bg-purple-50 p-6 rounded-3xl border-2 border-purple-200">
+          <span id="expNum1" class="text-4xl sm:text-6xl font-black text-purple-900">3</span>
+          <span id="expSymbol" class="text-3xl sm:text-5xl font-black text-purple-600">×</span>
+          <span id="expNum2" class="text-4xl sm:text-6xl font-black text-purple-900">4</span>
+          <span class="text-3xl sm:text-5xl font-black text-purple-400">=</span>
+          <span id="expResult" class="text-5xl sm:text-7xl font-black text-emerald-600">12</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-purple-700 tracking-wider text-center mb-2">
+            Change Second Number:
+          </label>
+          <div class="grid grid-cols-6 sm:grid-cols-12 gap-2" id="explorerButtonsList">
+            <!-- Buttons 1..12 -->
+          </div>
+        </div>
+
+        <div class="bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 text-center space-y-1">
+          <p id="expExplanation" class="text-sm sm:text-base font-bold text-amber-900"></p>
+          <p id="repeatedAdditionText" class="text-xs sm:text-sm font-quicksand font-extrabold text-amber-700"></p>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="text-sm font-black text-slate-700 uppercase tracking-wider text-center">Interactive Item Array</h4>
+          <div id="visualArrayContainer" class="p-6 bg-slate-50 rounded-3xl border-2 border-dashed border-purple-200 min-h-[160px] flex flex-col items-center justify-center gap-3 overflow-x-auto">
+            <!-- Visual items -->
+          </div>
+        </div>
+
+        <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4 flex items-start gap-3">
+          <span class="text-2xl">💡</span>
+          <div>
+            <h5 class="text-xs font-black uppercase tracking-wider text-indigo-900">Cinnamon's Memory Trick</h5>
+            <p id="explorerTrickText" class="text-xs sm:text-sm font-quicksand font-bold text-indigo-800">
+              Any number multiplied by 1 stays itself! Like a friendly mirror!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4: 3D FLASHCARDS -->
+    <div id="view-flashcards" class="hidden space-y-6 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <button onclick="switchView('home')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>⬅️</span> Back to Hub
+        </button>
+        <div class="text-xs font-black bg-blue-100 text-blue-900 border border-blue-300 px-3 py-1 rounded-full">
+          Card <span id="fcCurrentIndex">1</span> of <span id="fcTotalCount">12</span>
+        </div>
+      </div>
+
+      <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden border border-slate-300">
+        <div id="fcProgressBar" class="bg-blue-500 h-full transition-all duration-300" style="width: 8%"></div>
+      </div>
+
+      <div class="max-w-md mx-auto perspective-1000">
+        <div id="flashcardInner" onclick="flipFlashcard()" class="relative w-full h-72 sm:h-80 cursor-pointer transition-transform duration-500 transform-style-preserve-3d rounded-3xl shadow-2xl border-4 border-white">
+          <!-- Card Front -->
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-3xl flex flex-col items-center justify-center p-6 backface-hidden shadow-inner">
+            <span class="text-xs uppercase font-extrabold tracking-widest text-blue-200 mb-2">Math Equation</span>
+            <div id="fcQuestion" class="text-5xl sm:text-6xl font-black tracking-wide my-4">3 × 4</div>
+            <span class="text-xs font-quicksand font-bold text-blue-100 bg-white/20 px-3 py-1.5 rounded-full flex items-center gap-1">
+              <span>🔄</span> Tap card to flip & check answer!
+            </span>
+          </div>
+
+          <!-- Card Back -->
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-3xl flex flex-col items-center justify-center p-6 backface-hidden rotate-y-180 shadow-inner">
+            <span class="text-xs uppercase font-extrabold tracking-widest text-emerald-200 mb-2">Answer</span>
+            <div id="fcAnswer" class="text-6xl sm:text-7xl font-black tracking-wide my-2 text-yellow-300">12</div>
+            <p id="fcEquationFull" class="text-lg font-bold text-emerald-100 mb-3">3 × 4 = 12</p>
+            <span class="text-xs font-quicksand font-bold text-white/80 bg-white/20 px-3 py-1 rounded-full">
+              Tap again to flip back
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-md mx-auto grid grid-cols-2 gap-4">
+        <button onclick="handleFlashcardResponse(false)" class="py-3.5 bg-orange-100 hover:bg-orange-200 border-2 border-orange-300 text-orange-950 font-black rounded-2xl shadow transition active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base">
+          <span>🤔</span> Still Learning
+        </button>
+        <button onclick="handleFlashcardResponse(true)" class="py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base">
+          <span>🌟</span> Got It! (+1⭐)
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 5: ROCKET QUIZ -->
+    <div id="view-rocket" class="hidden space-y-6 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <button onclick="switchView('home')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>⬅️</span> Back to Hub
+        </button>
+        <span class="text-xs font-black bg-rose-100 text-rose-900 border border-rose-300 px-3 py-1 rounded-full">
+          Mission Fuel: <span id="rocketFuelDisplay">0</span>/10
+        </span>
+      </div>
+
+      <div class="bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-indigo-500/40 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20 pointer-events-none text-xl leading-relaxed select-none">
+          ✨ . . ✨ . 🌟 . . ✨ . . 🌟 . ✨ . . . 🌟
+        </div>
+
+        <div class="relative z-10 max-w-lg mx-auto text-center space-y-6">
+          <div class="relative h-24 flex items-center justify-center">
+            <div id="rocketShip" class="text-6xl sm:text-7xl transition-transform duration-700 transform hover:scale-110">
+              🚀
+            </div>
+            <div id="rocketFlame" class="hidden absolute bottom-1 text-3xl animate-bounce">
+              🔥
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-bold text-indigo-300">
+              <span>🚀 Launchpad</span>
+              <span>Orbit Target: 10 Stars 🌌</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-4 border-2 border-indigo-400/40 overflow-hidden">
+              <div id="rocketFuelBar" class="bg-gradient-to-r from-amber-400 via-rose-500 to-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 border-white/20">
+            <span class="text-xs uppercase font-extrabold tracking-widest text-indigo-300 block mb-1">
+              Mission Fuel Question #<span id="rocketQuestionIndex">1</span>
+            </span>
+            <div id="rocketQuestionDisplay" class="text-4xl sm:text-5xl font-black text-yellow-300 my-2">
+              4 × 5 = ?
+            </div>
+            <div id="quizFeedbackMsg" class="h-6 text-sm font-bold text-emerald-400"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3" id="rocketChoicesGrid">
+            <!-- 4 Choice buttons -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 6: BUBBLE POP -->
+    <div id="view-bubbles" class="hidden space-y-6 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <button onclick="switchView('home')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>⬅️</span> Back to Hub
+        </button>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-full">
+            Score: <span id="bubbleScore">0</span>
+          </span>
+          <span class="text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full">
+            ⏳ <span id="bubbleTimer">45</span>s
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-b from-sky-400 via-teal-300 to-emerald-300 rounded-3xl p-6 shadow-2xl border-4 border-white relative overflow-hidden min-h-[420px] flex flex-col justify-between">
+        <div class="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-lg border-2 border-teal-200 text-center max-w-sm mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-teal-700 block">Pop The Answer:</span>
+          <span id="bubbleTargetEquation" class="text-3xl sm:text-4xl font-black text-slate-800">
+            6 × 7 = ?
+          </span>
+        </div>
+
+        <div id="bubbleStage" class="relative flex-grow h-64 w-full">
+          <!-- Floating bubbles populated by JS -->
+        </div>
+
+        <div class="relative z-10 text-center text-xs font-bold text-white/90 drop-shadow">
+          Tap the floating bubble with the correct solution to pop it! 🫧
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 7: TROPHY ROOM -->
+    <div id="view-trophies" class="hidden space-y-6 animate-pop-in">
+      <div class="flex items-center justify-between">
+        <button onclick="switchView('home')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <span>⬅️</span> Back to Hub
+        </button>
+        <span class="text-sm font-black bg-yellow-100 text-yellow-900 border border-yellow-300 px-3 py-1 rounded-full">
+          Safari Trophy Room 🏆
+        </span>
+      </div>
+
+      <!-- Badges 1-12 -->
+      <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-amber-100 space-y-4">
+        <div>
+          <h3 class="text-xl font-black text-slate-800">🎖️ Number Mastery Badges</h3>
+          <p class="text-xs font-quicksand font-bold text-slate-500">Solve 10 problems on any table number to earn its golden badge!</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="trophyBadgesGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Sticker Album -->
+      <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-amber-100 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-xl font-black text-slate-800">🦄 Cinnamon's Safari Sticker Album</h3>
+            <p class="text-xs font-quicksand font-bold text-slate-500">Collect stars to unlock magical stickers!</p>
+          </div>
+          <span class="text-xs font-black bg-purple-100 text-purple-900 px-3 py-1 rounded-full border border-purple-300">
+            Total Stars: <span id="trophyTotalStars">0</span>⭐
+          </span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="stickerAlbumGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mascot Floating Widget -->
+  <aside id="cinnamonWidget" class="fixed bottom-4 right-4 z-40 max-w-xs sm:max-w-sm flex items-end gap-2.5 pointer-events-auto">
+    <div id="cinnamonBubble" onclick="cinnamonRandomCheer()" class="bg-white/95 backdrop-blur-md border-2 border-pink-300 rounded-3xl p-3 sm:p-4 shadow-xl text-xs sm:text-sm font-bold text-slate-800 cursor-pointer hover:bg-pink-50 transition transform hover:-translate-y-0.5 max-w-[200px] sm:max-w-[240px]">
+      <div class="flex items-center justify-between text-pink-600 text-[10px] uppercase font-black tracking-wider mb-1">
+        <span>🦄 Cinnamon</span>
+        <span class="text-[9px] text-pink-400">tap me!</span>
+      </div>
+      <p id="cinnamonText" class="font-quicksand text-slate-700 leading-snug">
+        Hi friend! I'm Cinnamon the Unicorn! Let's explore math together! ✨
+      </p>
+    </div>
+
+    <button onclick="cinnamonRandomCheer()" class="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-pink-400 via-purple-400 to-amber-300 rounded-full p-1 shadow-2xl border-2 border-white flex items-center justify-center transform hover:scale-110 active:scale-95 transition-transform" title="Tap Cinnamon for cheers!">
+      <span class="text-3xl sm:text-4xl animate-bounce-gentle select-none">🦄</span>
+      <span class="absolute -top-1 -right-1 text-xs animate-ping">✨</span>
+    </button>
+  </aside>
+
+  <!-- Celebration Modal -->
+  <div id="appModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border-4 border-amber-300 text-center space-y-4 animate-pop-in">
+      <div id="modalIcon" class="text-5xl">🎉</div>
+      <h4 id="modalTitle" class="text-2xl font-black text-slate-800">Awesome!</h4>
+      <p id="modalBody" class="text-sm font-quicksand font-bold text-slate-600 leading-relaxed">
+        Great job practicing your math tables today!
+      </p>
+      <button id="modalConfirmBtn" onclick="closeModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-2xl shadow transition active:scale-95 text-sm">
+        Keep Playing! 🌟
+      </button>
+    </div>
+  </div>
+
+  <!-- Daily Streak Info Modal -->
+  <div id="streakModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border-4 border-orange-300 text-center space-y-4 animate-pop-in">
+      <span class="text-5xl block animate-bounce-gentle">🔥</span>
+      <h4 class="text-2xl font-black text-slate-800">Daily Safari Streak</h4>
+      <p class="text-sm font-quicksand font-bold text-slate-600">
+        Practice every day to keep your flame roaring and earn bonus stars!
+      </p>
+
+      <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-4 flex justify-around">
+        <div>
+          <span class="text-xs uppercase font-extrabold text-orange-600 block">Current Streak</span>
+          <span id="streakModalCurrent" class="text-2xl font-black text-orange-950">0 Days</span>
+        </div>
+        <div class="w-px bg-orange-200"></div>
+        <div>
+          <span class="text-xs uppercase font-extrabold text-orange-600 block">All-Time Best</span>
+          <span id="streakModalBest" class="text-2xl font-black text-orange-950">0 Days</span>
+        </div>
+      </div>
+
+      <div class="bg-pink-50 border border-pink-200 rounded-2xl p-3 text-xs font-bold text-pink-900 flex items-center gap-2 text-left">
+        <span class="text-2xl">🦄</span>
+        <span>Cinnamon says: Practice at least once today to keep your streak glowing!</span>
+      </div>
+
+      <button onclick="closeStreakModal()" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl shadow transition active:scale-95 text-sm">
+        Got It! 🔥
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const CINNAMON_CHEERS = {
+      correct: [
+        "Woohoo! You got it right! You're a math superstar! 🦄✨",
+        "Sparkles and rainbows! That was spot on! 🌈⭐",
+        "High five! That math muscle is getting super strong! 🖐️🦄",
+        "Amazing work! You're flying like a rocket! 🚀💫",
+        "Pure magic! Cinnamon is doing a happy dance! 🦄🎉"
+      ],
+      encouragement: [
+        "Don't worry! Every mistake helps your brain grow! 🧠🌱",
+        "You're getting so close! Let's try the next one! 💪🦄",
+        "Take a deep breath! You've got this, superstar! ✨🌟",
+        "Practice makes awesome! Keep on shining! 🦄💖"
+      ],
+      random: [
+        "Did you know? Unicorns love multiplication arrays! 🦄✨",
+        "You're doing fantastic today! Keep collecting those stars! ⭐",
+        "Remember: Double of a double gives you the 4 times table! 🍀",
+        "I'm so proud to explore math safari with you! 🦁🦄"
+      ]
+    };
+
+    const OPERATIONS = {
+      multiply: {
+        name: "Multiplication",
+        symbol: "×",
+        cardSymbol: "✖️",
+        themeGradient: "from-amber-400 via-orange-400 to-rose-400",
+        badgeBg: "bg-amber-100 text-amber-900 border-amber-300",
+        heroTitle: "Master Your Times Tables!",
+        heroSubtitle: "Practice visual arrays, blast off rockets, and collect stickers with Cinnamon the Unicorn!",
+        focusLabel: "Choose Your Times Table Focus",
+        allLabel: "🌟 All Tables (1-12)",
+        cinnamonGreeting: "Welcome to the Savannah! Let's multiply like champions! 🦁🦄"
+      },
+      divide: {
+        name: "Division",
+        symbol: "÷",
+        cardSymbol: "➗",
+        themeGradient: "from-sky-400 via-cyan-400 to-blue-500",
+        badgeBg: "bg-sky-100 text-sky-900 border-sky-300",
+        heroTitle: "Master Fair Sharing & Division!",
+        heroSubtitle: "Split groups evenly, solve water rapids puzzles, and collect shining rewards with Cinnamon!",
+        focusLabel: "Choose Your Divisor Focus",
+        allLabel: "🌟 All Divisors (1-12)",
+        cinnamonGreeting: "Welcome to the Division Rapids! Fair sharing is super fun! 🐬🦄"
+      },
+      add: {
+        name: "Addition",
+        symbol: "+",
+        cardSymbol: "➕",
+        themeGradient: "from-emerald-400 via-teal-400 to-green-500",
+        badgeBg: "bg-emerald-100 text-emerald-900 border-emerald-300",
+        heroTitle: "Soar with Addition Powers!",
+        heroSubtitle: "Combine animal packs, double your numbers, and rocket into the sky with Cinnamon!",
+        focusLabel: "Choose Your Addition Focus",
+        allLabel: "🌟 All Numbers (1-12)",
+        cinnamonGreeting: "Welcome to the Jungle Canopy! Let's add up all our friends! 🦜🦄"
+      },
+      subtract: {
+        name: "Subtraction",
+        symbol: "−",
+        cardSymbol: "➖",
+        themeGradient: "from-rose-400 via-pink-400 to-red-500",
+        badgeBg: "bg-rose-100 text-rose-900 border-rose-300",
+        heroTitle: "Ace Differences & Subtraction!",
+        heroSubtitle: "Take away items, find remaining friends, and pop math bubbles with Cinnamon!",
+        focusLabel: "Choose Your Subtraction Focus",
+        allLabel: "🌟 All Numbers (1-12)",
+        cinnamonGreeting: "Welcome to the Oasis! Taking away reveals wonderful answers! 🐪🦄"
+      }
+    };
+
+    const TIPS_BY_TABLE = {
+      1: "Any number multiplied by 1 stays itself! Like a friendly mirror! 🪞",
+      2: "Multiplying by 2 is just doubling! Add the number to itself! ✌️",
+      3: "Skip-count by 3s: 3, 6, 9, 12, 15! Like a hopping kangaroo! 🦘",
+      4: "Double the double! For 4 × 5: double 5 is 10, double 10 is 20! 🍀",
+      5: "All answers end in 0 or 5! High five! 🖐️",
+      6: "Even numbers multiplied by 6 always end in the same digit: 6×4=24, 6×8=48! 🎲",
+      7: "7 × 8 = 56 is super famous! Count 5, 6, 7, 8! 🌈",
+      8: "Double, double, double! Three quick doubles unlock the 8s! 🐙",
+      9: "Tens digit goes up (0,1,2..) and ones digit goes down (9,8,7..)! Digits always add to 9! ✨",
+      10: "Just place a happy zero at the end of the number! 10 × 6 = 60! 🎈",
+      11: "For single digits, write the digit twice: 11 × 4 = 44! 👯",
+      12: "Multiply by 10, then add 2 more groups! 12 × 5 = 50 + 10 = 60! ⏰"
+    };
+
+    const STICKERS = [
+      { id: 'stk1', name: 'Baby Lion', emoji: '🦁', cost: 5 },
+      { id: 'stk2', name: 'Magic Unicorn', emoji: '🦄', cost: 10 },
+      { id: 'stk3', name: 'Galaxy Rocket', emoji: '🚀', cost: 18 },
+      { id: 'stk4', name: 'Playful Dolphin', emoji: '🐬', cost: 25 },
+      { id: 'stk5', name: 'Rainbow Star', emoji: '🌈', cost: 35 },
+      { id: 'stk6', name: 'Jungle Parrot', emoji: '🦜', cost: 50 },
+      { id: 'stk7', name: 'Cool Panda', emoji: '🐼', cost: 65 },
+      { id: 'stk8', name: 'Crown Champion', emoji: '👑', cost: 85 }
+    ];
+
+    let state = {
+      currentView: 'title',
+      operation: 'multiply',
+      selectedTable: 'all',
+      stars: 0,
+      badges: {},
+      streak: 0,
+      bestStreak: 0,
+      lastPracticeDate: null,
+      explorerNum1: 3,
+      explorerNum2: 4,
+      fcList: [],
+      fcIndex: 0,
+      fcFlipped: false,
+      rocketScore: 0,
+      rocketTarget: 10,
+      rocketStreak: 0,
+      rocketQuestion: null,
+      bubbleScoreVal: 0,
+      bubbleSeconds: 45,
+      bubbleTimerId: null,
+      bubbleTarget: { n1: 3, n2: 4, ans: 12, symbol: '×', text: '3 × 4' }
+    };
+
+    const SoundManager = {
+      ctx: null,
+      muted: false,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      },
+      toggleMute() {
+        this.muted = !this.muted;
+        const icon = document.getElementById('soundIcon');
+        if (icon) icon.textContent = this.muted ? '🔇' : '🔊';
+      },
+      playTone(freq, type = 'sine', duration = 0.15, vol = 0.15) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      },
+      playPop() { this.playTone(480, 'triangle', 0.08, 0.2); },
+      playFlip() { this.playTone(320, 'sine', 0.1, 0.15); },
+      playCorrect() {
+        this.playTone(523.25, 'sine', 0.1, 0.2);
+        setTimeout(() => this.playTone(659.25, 'sine', 0.12, 0.2), 100);
+        setTimeout(() => this.playTone(783.99, 'sine', 0.2, 0.2), 200);
+      },
+      playWrong() {
+        this.playTone(280, 'sawtooth', 0.15, 0.15);
+        setTimeout(() => this.playTone(220, 'sawtooth', 0.2, 0.15), 120);
+      },
+      playSparkle() {
+        const freqs = [659, 784, 880, 1046, 1318];
+        freqs.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'sine', 0.08, 0.1), idx * 45);
+        });
+      },
+      playFanfare() {
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.2, 0.25), idx * 120);
+        });
+      }
+    };
+
+    const LofiMusic = {
+      isPlaying: false,
+      ctx: null,
+      masterGain: null,
+      noiseNode: null,
+      stepTimer: null,
+      chordIndex: 0,
+      chords: [
+        [174.61, 220.00, 261.63, 329.63],
+        [164.81, 196.00, 246.94, 293.66],
+        [146.83, 174.61, 220.00, 261.63],
+        [130.81, 164.81, 196.00, 246.94]
+      ],
+      bassNotes: [87.31, 82.41, 73.42, 65.41],
+
+      init() {
+        if (!SoundManager.ctx) SoundManager.init();
+        this.ctx = SoundManager.ctx;
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      },
+
+      toggle() {
+        this.init();
+        if (!this.ctx) return;
+        if (this.isPlaying) {
+          this.stop();
+        } else {
+          this.start();
+        }
+      },
+
+      start() {
+        if (this.isPlaying || !this.ctx) return;
+        this.isPlaying = true;
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+        this.masterGain.gain.exponentialRampToValueAtTime(0.18, this.ctx.currentTime + 1.0);
+        this.masterGain.connect(this.ctx.destination);
+
+        this.startVinylAmbience();
+        this.chordIndex = 0;
+        this.playNextBar();
+        this.stepTimer = setInterval(() => {
+          if (this.isPlaying) this.playNextBar();
+        }, 2600);
+
+        this.updateUI(true);
+        cinnamonSpeak("🎶 Cozy Lo-Fi beats are playing! Relax and enjoy your math safari! ☕✨", false);
+      },
+
+      stop() {
+        if (!this.isPlaying) return;
+        this.isPlaying = false;
+        if (this.stepTimer) {
+          clearInterval(this.stepTimer);
+          this.stepTimer = null;
+        }
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.6);
+          setTimeout(() => {
+            if (this.noiseNode) {
+              try { this.noiseNode.stop(); } catch (e) {}
+              this.noiseNode = null;
+            }
+          }, 700);
+        }
+        this.updateUI(false);
+      },
+
+      updateUI(active) {
+        const btn = document.getElementById('musicToggleBtn');
+        const status = document.getElementById('musicStatus');
+        const icon = document.getElementById('musicIcon');
+        if (btn && status && icon) {
+          if (active) {
+            btn.classList.remove('bg-indigo-50', 'border-indigo-200');
+            btn.classList.add('bg-indigo-100', 'border-indigo-400', 'ring-2', 'ring-indigo-300');
+            status.textContent = 'ON';
+            status.className = 'text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500 text-white animate-pulse';
+            icon.textContent = '🎧';
+          } else {
+            btn.classList.add('bg-indigo-50', 'border-indigo-200');
+            btn.classList.remove('bg-indigo-100', 'border-indigo-400', 'ring-2', 'ring-indigo-300');
+            status.textContent = 'OFF';
+            status.className = 'text-[10px] font-black px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-600';
+            icon.textContent = '🎵';
+          }
+        }
+      },
+
+      startVinylAmbience() {
+        try {
+          const bufferSize = this.ctx.sampleRate * 2;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            const pop = Math.random() > 0.999 ? (Math.random() * 0.3) : 0;
+            data[i] = (white * 0.012) + pop;
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          noise.loop = true;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1400;
+          filter.Q.value = 1.0;
+          const gain = this.ctx.createGain();
+          gain.gain.value = 0.06;
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          noise.start();
+          this.noiseNode = noise;
+        } catch (e) {}
+      },
+
+      playNextBar() {
+        if (!this.ctx || !this.isPlaying || !this.masterGain) return;
+        const now = this.ctx.currentTime;
+        const chord = this.chords[this.chordIndex];
+        const bass = this.bassNotes[this.chordIndex];
+
+        chord.forEach((freq, idx) => {
+          this.playRhodesNote(freq, now + (idx * 0.045), 2.3, 0.045);
+        });
+        this.playWarmBass(bass, now, 2.4);
+        this.playSoftKick(now);
+        this.playSoftBrush(now + 1.3);
+
+        this.chordIndex = (this.chordIndex + 1) % this.chords.length;
+      },
+
+      playRhodesNote(freq, startTime, duration = 2.0, vol = 0.05) {
+        const osc = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(750, startTime);
+        filter.frequency.exponentialRampToValueAtTime(380, startTime + duration);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.linearRampToValueAtTime(vol, startTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(startTime);
+        osc2.start(startTime);
+        osc.stop(startTime + duration);
+        osc2.stop(startTime + duration);
+      },
+
+      playWarmBass(freq, startTime, duration = 2.2) {
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        filter.type = 'lowpass';
+        filter.frequency.value = 180;
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.linearRampToValueAtTime(0.07, startTime + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      },
+
+      playSoftKick(startTime) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(90, startTime);
+        osc.frequency.exponentialRampToValueAtTime(35, startTime + 0.12);
+        gain.gain.setValueAtTime(0.04, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(startTime);
+        osc.stop(startTime + 0.15);
+      },
+
+      playSoftBrush(startTime) {
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, startTime);
+        filter.type = 'bandpass';
+        filter.frequency.value = 2200;
+        gain.gain.setValueAtTime(0.012, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(startTime);
+        osc.stop(startTime + 0.1);
+      }
+    };
+
+    function loadUserData() {
+      try {
+        const raw = localStorage.getItem('math_safari_kids_data');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state.stars = parsed.stars || 0;
+          state.badges = parsed.badges || {};
+          state.streak = parsed.streak || 0;
+          state.bestStreak = parsed.bestStreak || 0;
+          state.lastPracticeDate = parsed.lastPracticeDate || null;
+        }
+      } catch (e) {}
+      checkStreakContinuity();
+      updateTopCounters();
+    }
+
+    function saveUserData() {
+      try {
+        const payload = {
+          stars: state.stars,
+          badges: state.badges,
+          streak: state.streak,
+          bestStreak: state.bestStreak,
+          lastPracticeDate: state.lastPracticeDate
+        };
+        localStorage.setItem('math_safari_kids_data', JSON.stringify(payload));
+      } catch (e) {}
+      updateTopCounters();
+    }
+
+    function checkStreakContinuity() {
+      if (!state.lastPracticeDate) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const last = new Date(state.lastPracticeDate);
+      const now = new Date(today);
+      const diffTime = now - last;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 1) {
+        state.streak = 0;
+        saveUserData();
+      }
+    }
+
+    function recordDailyPractice() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (state.lastPracticeDate === today) return;
+
+      if (!state.lastPracticeDate) {
+        state.streak = 1;
+      } else {
+        const last = new Date(state.lastPracticeDate);
+        const now = new Date(today);
+        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          state.streak++;
+        } else {
+          state.streak = 1;
+        }
+      }
+
+      state.lastPracticeDate = today;
+      if (state.streak > state.bestStreak) {
+        state.bestStreak = state.streak;
+      }
+
+      addStars(3);
+      saveUserData();
+
+      SoundManager.playSparkle();
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+      cinnamonSpeak(`🔥 ${state.streak}-day streak! You earned +3 bonus stars! You're on fire! 🔥`, true);
+    }
+
+    function addStars(num) {
+      state.stars += num;
+      saveUserData();
+      renderStickersGrid();
+    }
+
+    function updateTopCounters() {
+      const starEl = document.getElementById('topStarCount');
+      if (starEl) starEl.textContent = state.stars;
+
+      const streakEl = document.getElementById('topStreakCount');
+      if (streakEl) streakEl.textContent = state.streak;
+
+      const heroStreak = document.getElementById('heroStreakCount');
+      if (heroStreak) heroStreak.textContent = `${state.streak} Days`;
+
+      const heroLvl = document.getElementById('heroLevel');
+      if (heroLvl) heroLvl.textContent = Math.floor(state.stars / 15) + 1;
+
+      const trophyStars = document.getElementById('trophyTotalStars');
+      if (trophyStars) trophyStars.textContent = state.stars;
+
+      const badgeKeys = Object.keys(state.badges).filter(k => state.badges[k] >= 10);
+      const heroBadges = document.getElementById('heroBadgeCount');
+      if (heroBadges) heroBadges.textContent = `${badgeKeys.length}/12`;
+    }
+
+    function cinnamonSpeak(text, playSound = true) {
+      const txtEl = document.getElementById('cinnamonText');
+      if (txtEl) txtEl.textContent = text;
+      if (playSound) SoundManager.playSparkle();
+
+      const bubble = document.getElementById('cinnamonBubble');
+      if (bubble) {
+        bubble.classList.remove('animate-pop-in');
+        void bubble.offsetWidth;
+        bubble.classList.add('animate-pop-in');
+      }
+    }
+
+    function cinnamonRandomCheer() {
+      const list = CINNAMON_CHEERS.random;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      cinnamonSpeak(pick, true);
+    }
+
+    function switchView(viewName) {
+      if (state.bubbleTimerId) {
+        clearInterval(state.bubbleTimerId);
+        state.bubbleTimerId = null;
+      }
+
+      const views = ['title', 'home', 'explorer', 'flashcards', 'rocket', 'bubbles', 'trophies'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const activeEl = document.getElementById(`view-${viewName}`);
+      if (activeEl) {
+        activeEl.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      state.currentView = viewName;
+
+      const changeOpBtn = document.getElementById('changeOpHeaderBtn');
+      if (changeOpBtn) {
+        if (viewName === 'title') {
+          changeOpBtn.classList.add('hidden');
+        } else {
+          changeOpBtn.classList.remove('hidden');
+        }
+      }
+
+      const greetings = {
+        title: "Welcome to Math Safari! Which math realm shall we explore? 🦄🧭",
+        home: OPERATIONS[state.operation]?.cinnamonGreeting || "Pick any fun activity below! 🦁🦄",
+        explorer: "Let's explore visual patterns together! Look at the colorful rows! 🔍✨",
+        flashcards: "Flashcard time! Guess the answer and flip when you're ready! 🃏💫",
+        rocket: "3, 2, 1... Answer questions to fuel our friendly space rocket! 🚀🌌",
+        bubbles: "Pop, pop, pop! Find the bubble with the magic answer! 🫧🦄",
+        trophies: "Look at all your glittering badges and sticker treasures! 🏆✨"
+      };
+
+      if (greetings[viewName]) {
+        cinnamonSpeak(greetings[viewName], false);
+      }
+    }
+
+    function selectOperation(op) {
+      if (!OPERATIONS[op]) return;
+      state.operation = op;
+      SoundManager.playSparkle();
+
+      const cfg = OPERATIONS[op];
+      const badge = document.getElementById('activeRealmBadge');
+      if (badge) {
+        badge.textContent = `${cfg.name} Realm ${cfg.cardSymbol}`;
+        badge.className = `text-sm font-black px-3 py-1 rounded-full border ${cfg.badgeBg}`;
+      }
+
+      const banner = document.getElementById('homeHeroBanner');
+      if (banner) {
+        banner.className = `relative overflow-hidden bg-gradient-to-r ${cfg.themeGradient} rounded-3xl p-6 sm:p-8 text-white shadow-xl border-4 border-white`;
+      }
+
+      const title = document.getElementById('homeHeroTitle');
+      if (title) title.textContent = cfg.heroTitle;
+
+      const sub = document.getElementById('homeHeroSubtitle');
+      if (sub) sub.textContent = cfg.heroSubtitle;
+
+      const selTitle = document.getElementById('tableSelectorTitle');
+      if (selTitle) selTitle.textContent = cfg.focusLabel;
+
+      const selAll = document.getElementById('tabBtn-all');
+      if (selAll) selAll.textContent = cfg.allLabel;
+
+      initTableSelector();
+      switchView('home');
+    }
+
+    function createProblem(n1, n2, op = state.operation) {
+      if (op === 'multiply') {
+        return { n1, n2, symbol: '×', ans: n1 * n2, text: `${n1} × ${n2}` };
+      } else if (op === 'divide') {
+        const dividend = n1 * n2;
+        return { n1: dividend, n2: n1, symbol: '÷', ans: n2, text: `${dividend} ÷ ${n1}` };
+      } else if (op === 'add') {
+        return { n1, n2, symbol: '+', ans: n1 + n2, text: `${n1} + ${n2}` };
+      } else if (op === 'subtract') {
+        const total = n1 + n2;
+        return { n1: total, n2: n1, symbol: '−', ans: n2, text: `${total} − ${n1}` };
+      }
+      return { n1, n2, symbol: '×', ans: n1 * n2, text: `${n1} × ${n2}` };
+    }
+
+    function initTableSelector() {
+      const grid = document.getElementById('tableSelectorGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 12; i++) {
+        const btn = document.createElement('button');
+        btn.id = `tabBtn-${i}`;
+        const isSel = state.selectedTable === i;
+        btn.className = `table-select-btn py-2.5 rounded-2xl font-black text-sm border-2 transition active:scale-95 ${
+          isSel
+            ? 'bg-amber-500 text-white border-amber-600 shadow-md'
+            : 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200'
+        }`;
+        btn.textContent = i;
+        btn.onclick = () => selectTable(i);
+        grid.appendChild(btn);
+      }
+    }
+
+    function selectTable(num) {
+      state.selectedTable = num;
+      SoundManager.playPop();
+
+      const allBtn = document.getElementById('tabBtn-all');
+      if (allBtn) {
+        if (num === 'all') {
+          allBtn.className = 'table-select-btn px-4 py-2 bg-amber-500 text-white border-2 border-amber-600 rounded-2xl font-bold text-sm shadow transition active:scale-95';
+        } else {
+          allBtn.className = 'table-select-btn px-4 py-2 bg-slate-100 hover:bg-amber-50 text-slate-700 border-2 border-slate-200 rounded-2xl font-bold text-sm shadow-none transition active:scale-95';
+        }
+      }
+
+      for (let i = 1; i <= 12; i++) {
+        const b = document.getElementById(`tabBtn-${i}`);
+        if (b) {
+          if (num === i) {
+            b.className = 'table-select-btn py-2.5 rounded-2xl font-black text-sm border-2 transition active:scale-95 bg-amber-500 text-white border-amber-600 shadow-md';
+          } else {
+            b.className = 'table-select-btn py-2.5 rounded-2xl font-black text-sm border-2 transition active:scale-95 bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200';
+          }
+        }
+      }
+
+      cinnamonSpeak(
+        num === 'all'
+          ? "All numbers unlocked! Let's mix and match safari fun! 🌟"
+          : `Awesome! Number ${num} selected! Let's master it together! 🦄✨`,
+        false
+      );
+    }
+
+    function recordTableMastery(tableNum) {
+      state.badges[tableNum] = (state.badges[tableNum] || 0) + 1;
+      saveUserData();
+      renderBadgesGrid();
+    }
+
+    const EMOJI_ITEMS = ['⭐', '🍎', '🐱', '🚀', '🍉', '🎈', '🍪', '🌸', '🍕', '⚽'];
+
+    function startExplorerMode() {
+      const targetTable = state.selectedTable === 'all' ? 3 : Number(state.selectedTable);
+      state.explorerNum1 = targetTable;
+      state.explorerNum2 = 4;
+      buildExplorerControls();
+      updateExplorerDisplay();
+      switchView('explorer');
+    }
+
+    function buildExplorerControls() {
+      const list = document.getElementById('explorerButtonsList');
+      if (!list) return;
+      list.innerHTML = '';
+
+      for (let i = 1; i <= 12; i++) {
+        const btn = document.createElement('button');
+        btn.id = `expBtn-${i}`;
+        btn.className = `py-2 rounded-xl font-bold text-xs sm:text-sm border-2 transition active:scale-95 ${
+          state.explorerNum2 === i
+            ? 'bg-purple-600 text-white border-purple-700'
+            : 'bg-slate-50 hover:bg-purple-50 text-slate-700 border-slate-200'
+        }`;
+        btn.textContent = i;
+        btn.onclick = () => {
+          state.explorerNum2 = i;
+          SoundManager.playPop();
+          updateExplorerDisplay();
+        };
+        list.appendChild(btn);
+      }
+    }
+
+    function updateExplorerDisplay() {
+      const n1 = state.explorerNum1;
+      const n2 = state.explorerNum2;
+      const problem = createProblem(n1, n2);
+
+      const elN1 = document.getElementById('expNum1');
+      const elSym = document.getElementById('expSymbol');
+      const elN2 = document.getElementById('expNum2');
+      const elRes = document.getElementById('expResult');
+
+      if (elN1) elN1.textContent = problem.n1;
+      if (elSym) elSym.textContent = problem.symbol;
+      if (elN2) elN2.textContent = problem.n2;
+      if (elRes) elRes.textContent = problem.ans;
+
+      let explanation = "";
+      if (state.operation === 'multiply') {
+        explanation = `"${n1} groups of ${n2} items make ${problem.ans} altogether!"`;
+        const repeated = Array(n1).fill(n2).join(' + ');
+        document.getElementById('repeatedAdditionText').textContent = `${repeated} = ${problem.ans}`;
+      } else if (state.operation === 'divide') {
+        explanation = `"${problem.n1} items shared into ${problem.n2} equal groups makes ${problem.ans} in each group!"`;
+        document.getElementById('repeatedAdditionText').textContent = `${problem.ans} × ${problem.n2} = ${problem.n1}`;
+      } else if (state.operation === 'add') {
+        explanation = `"Combining a group of ${n1} and a group of ${n2} gives ${problem.ans} in total!"`;
+        document.getElementById('repeatedAdditionText').textContent = `${n1} + ${n2} = ${problem.ans}`;
+      } else if (state.operation === 'subtract') {
+        explanation = `"Starting with ${problem.n1} items and taking away ${problem.n2} leaves ${problem.ans}!"`;
+        document.getElementById('repeatedAdditionText').textContent = `${problem.ans} + ${problem.n2} = ${problem.n1}`;
+      }
+
+      document.getElementById('expExplanation').textContent = explanation;
+      document.getElementById('explorerTrickText').textContent =
+        TIPS_BY_TABLE[n1] || "Practice and repetition makes math second nature!";
+
+      for (let i = 1; i <= 12; i++) {
+        const b = document.getElementById(`expBtn-${i}`);
+        if (b) {
+          if (i === n2) {
+            b.className = 'py-2 rounded-xl font-bold text-xs sm:text-sm border-2 transition active:scale-95 bg-purple-600 text-white border-purple-700 shadow-sm';
+          } else {
+            b.className = 'py-2 rounded-xl font-bold text-xs sm:text-sm border-2 transition active:scale-95 bg-slate-50 hover:bg-purple-50 text-slate-700 border-slate-200';
+          }
+        }
+      }
+
+      renderVisualArray(Math.min(8, n1), Math.min(10, n2));
+    }
+
+    function renderVisualArray(rows, cols) {
+      const container = document.getElementById('visualArrayContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const emoji = EMOJI_ITEMS[(rows + cols) % EMOJI_ITEMS.length];
+
+      for (let r = 0; r < rows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex items-center gap-1.5 justify-center flex-wrap';
+
+        const rowLabel = document.createElement('span');
+        rowLabel.className = 'text-[11px] font-bold text-purple-400 w-12 text-right';
+        rowLabel.textContent = `Group ${r + 1}:`;
+        rowDiv.appendChild(rowLabel);
+
+        for (let c = 0; c < cols; c++) {
+          const item = document.createElement('span');
+          item.className = 'text-xl sm:text-2xl transform hover:scale-125 transition-transform cursor-pointer select-none';
+          item.textContent = emoji;
+          item.onclick = () => SoundManager.playPop();
+          rowDiv.appendChild(item);
+        }
+        container.appendChild(rowDiv);
+      }
+    }
+
+    function startFlashcardMode() {
+      state.fcList = [];
+      const tablesToUse = state.selectedTable === 'all'
+        ? [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        : [Number(state.selectedTable)];
+
+      tablesToUse.forEach(t => {
+        for (let i = 1; i <= 12; i++) {
+          state.fcList.push(createProblem(t, i));
+        }
+      });
+
+      state.fcList.sort(() => Math.random() - 0.5);
+      state.fcList = state.fcList.slice(0, 12);
+      state.fcIndex = 0;
+      state.fcFlipped = false;
+
+      renderCurrentFlashcard();
+      switchView('flashcards');
+    }
+
+    function flipFlashcard() {
+      SoundManager.playFlip();
+      const cardInner = document.getElementById('flashcardInner');
+      state.fcFlipped = !state.fcFlipped;
+      if (state.fcFlipped) {
+        cardInner.classList.add('rotate-y-180');
+      } else {
+        cardInner.classList.remove('rotate-y-180');
+      }
+    }
+
+    function renderCurrentFlashcard() {
+      const card = state.fcList[state.fcIndex];
+      const cardInner = document.getElementById('flashcardInner');
+
+      state.fcFlipped = false;
+      cardInner.classList.remove('rotate-y-180');
+
+      document.getElementById('fcCurrentIndex').textContent = state.fcIndex + 1;
+      document.getElementById('fcTotalCount').textContent = state.fcList.length;
+      document.getElementById('fcQuestion').textContent = card.text;
+      document.getElementById('fcAnswer').textContent = card.ans;
+      document.getElementById('fcEquationFull').textContent = `${card.text} = ${card.ans}`;
+
+      const progress = ((state.fcIndex) / state.fcList.length) * 100;
+      document.getElementById('fcProgressBar').style.width = `${progress}%`;
+    }
+
+    function handleFlashcardResponse(knewIt) {
+      if (knewIt) {
+        SoundManager.playCorrect();
+        addStars(1);
+        recordDailyPractice();
+        const cheer = CINNAMON_CHEERS.correct[Math.floor(Math.random() * CINNAMON_CHEERS.correct.length)];
+        cinnamonSpeak(cheer, false);
+      } else {
+        SoundManager.playPop();
+        const cheer = CINNAMON_CHEERS.encouragement[Math.floor(Math.random() * CINNAMON_CHEERS.encouragement.length)];
+        cinnamonSpeak(cheer, false);
+      }
+
+      state.fcIndex++;
+      if (state.fcIndex >= state.fcList.length) {
+        SoundManager.playFanfare();
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+        cinnamonSpeak("INCREDIBLE! You finished the entire deck! 🦄🎉🌟", true);
+
+        if (state.selectedTable !== 'all') {
+          recordTableMastery(state.selectedTable);
+        }
+
+        setTimeout(() => {
+          showModal(
+            "Flashcard Champion! 🌟",
+            `Awesome job completing your deck! Cinnamon gave you bonus stars! Keep up the great safari work!`,
+            () => switchView('home')
+          );
+        }, 300);
+      } else {
+        renderCurrentFlashcard();
+      }
+    }
+
+    function startRocketQuiz() {
+      state.rocketScore = 0;
+      state.rocketStreak = 0;
+      updateRocketUI();
+      generateRocketQuestion();
+      switchView('rocket');
+    }
+
+    function updateRocketUI() {
+      const fuelDisplay = document.getElementById('rocketFuelDisplay');
+      if (fuelDisplay) fuelDisplay.textContent = state.rocketScore;
+
+      const fuelBar = document.getElementById('rocketFuelBar');
+      if (fuelBar) {
+        const pct = (state.rocketScore / state.rocketTarget) * 100;
+        fuelBar.style.width = `${pct}%`;
+      }
+    }
+
+    function generateRocketQuestion() {
+      let n1 = state.selectedTable === 'all'
+        ? Math.floor(Math.random() * 12) + 1
+        : Number(state.selectedTable);
+      const n2 = Math.floor(Math.random() * 12) + 1;
+      const prob = createProblem(n1, n2);
+      const correct = prob.ans;
+
+      const wrongSet = new Set();
+      while (wrongSet.size < 3) {
+        let offset = (Math.floor(Math.random() * 7) - 3);
+        if (offset === 0) offset = 2;
+        let candidate = correct + offset;
+        if (candidate > 0 && candidate !== correct) wrongSet.add(candidate);
+      }
+
+      const choices = [correct, ...Array.from(wrongSet)];
+      choices.sort(() => Math.random() - 0.5);
+
+      state.rocketQuestion = { ...prob, correct, choices };
+
+      document.getElementById('rocketQuestionDisplay').textContent = `${prob.text} = ?`;
+      document.getElementById('rocketQuestionIndex').textContent = state.rocketScore + 1;
+      document.getElementById('quizFeedbackMsg').textContent = '';
+
+      const container = document.getElementById('rocketChoicesGrid');
+      container.innerHTML = '';
+
+      choices.forEach(val => {
+        const btn = document.createElement('button');
+        btn.className = 'rocket-choice-btn py-3.5 bg-indigo-900/60 hover:bg-indigo-800 border-2 border-indigo-400/50 text-white rounded-2xl text-xl sm:text-2xl font-black shadow transition active:scale-95 flex items-center justify-center';
+        btn.textContent = val;
+        btn.onclick = () => handleRocketAnswer(val, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function handleRocketAnswer(chosen, btnEl) {
+      const q = state.rocketQuestion;
+      if (!q) return;
+
+      document.querySelectorAll('.rocket-choice-btn').forEach(b => b.disabled = true);
+      const feedback = document.getElementById('quizFeedbackMsg');
+
+      if (chosen === q.correct) {
+        SoundManager.playCorrect();
+        recordDailyPractice();
+        btnEl.classList.add('bg-emerald-500', 'border-emerald-400');
+        feedback.textContent = "⚡ Awesome! Rocket fuel added!";
+        feedback.className = "h-6 text-sm font-bold text-emerald-400";
+
+        state.rocketScore++;
+        state.rocketStreak++;
+        addStars(2);
+
+        const cheer = CINNAMON_CHEERS.correct[Math.floor(Math.random() * CINNAMON_CHEERS.correct.length)];
+        cinnamonSpeak(cheer, false);
+
+        const flame = document.getElementById('rocketFlame');
+        if (flame) {
+          flame.classList.remove('hidden');
+          setTimeout(() => flame.classList.add('hidden'), 500);
+        }
+      } else {
+        SoundManager.playWrong();
+        btnEl.classList.add('bg-rose-500', 'border-rose-400');
+        feedback.textContent = `Keep going! ${q.text} is ${q.correct}`;
+        feedback.className = "h-6 text-sm font-bold text-amber-300";
+        state.rocketStreak = 0;
+
+        cinnamonSpeak(`Almost! ${q.text} = ${q.correct}. You'll get the next one! 🦄💪`, false);
+      }
+
+      updateRocketUI();
+
+      setTimeout(() => {
+        if (state.rocketScore >= state.rocketTarget) {
+          rocketBlastoffCelebration();
+        } else {
+          generateRocketQuestion();
+        }
+      }, 900);
+    }
+
+    function rocketBlastoffCelebration() {
+      SoundManager.playFanfare();
+      const ship = document.getElementById('rocketShip');
+      const flame = document.getElementById('rocketFlame');
+
+      if (flame) flame.classList.remove('hidden');
+      if (ship) {
+        ship.style.transform = 'translateY(-300px) scale(1.6)';
+        ship.style.transition = 'transform 1.4s cubic-bezier(0.25, 1, 0.5, 1)';
+      }
+
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+      cinnamonSpeak("3, 2, 1... BLASTOFF! Into orbit! You did it! 🚀🌟🦄", true);
+
+      if (state.selectedTable !== 'all') {
+        recordTableMastery(state.selectedTable);
+      }
+
+      setTimeout(() => {
+        if (ship) {
+          ship.style.transform = 'none';
+          ship.style.transition = 'none';
+        }
+        if (flame) flame.classList.add('hidden');
+
+        showModal(
+          "Mission Accomplished! 🚀",
+          `You fueled Cinnamon's rocket and soared into orbit! You earned bonus stars!`,
+          () => switchView('home')
+        );
+      }, 1600);
+    }
+
+    function startBubbleGame() {
+      state.bubbleScoreVal = 0;
+      state.bubbleSeconds = 45;
+
+      document.getElementById('bubbleScore').textContent = '0';
+      document.getElementById('bubbleTimer').textContent = '45';
+
+      pickBubbleTarget();
+      spawnBubbleSet();
+      switchView('bubbles');
+
+      if (state.bubbleTimerId) clearInterval(state.bubbleTimerId);
+      state.bubbleTimerId = setInterval(() => {
+        state.bubbleSeconds--;
+        const timerEl = document.getElementById('bubbleTimer');
+        if (timerEl) timerEl.textContent = state.bubbleSeconds;
+
+        if (state.bubbleSeconds <= 0) {
+          clearInterval(state.bubbleTimerId);
+          state.bubbleTimerId = null;
+          bubbleGameOver();
+        }
+      }, 1000);
+    }
+
+    function pickBubbleTarget() {
+      let n1 = state.selectedTable === 'all'
+        ? Math.floor(Math.random() * 10) + 2
+        : Number(state.selectedTable);
+      let n2 = Math.floor(Math.random() * 10) + 2;
+
+      const prob = createProblem(n1, n2);
+      state.bubbleTarget = prob;
+      const targetEq = document.getElementById('bubbleTargetEquation');
+      if (targetEq) targetEq.textContent = `${prob.text} = ?`;
+    }
+
+    function spawnBubbleSet() {
+      const stage = document.getElementById('bubbleStage');
+      if (!stage) return;
+      stage.querySelectorAll('.safari-bubble').forEach(b => b.remove());
+
+      const correct = state.bubbleTarget.ans;
+      const values = [correct];
+
+      while (values.length < 5) {
+        const offset = (Math.floor(Math.random() * 7) - 3);
+        const cand = correct + (offset === 0 ? 3 : offset);
+        if (cand > 0 && !values.includes(cand)) {
+          values.push(cand);
+        } else if (!values.includes(correct + values.length * 2)) {
+          values.push(correct + values.length * 2);
+        }
+      }
+
+      values.sort(() => Math.random() - 0.5);
+
+      values.forEach((num, idx) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'safari-bubble absolute rounded-full flex items-center justify-center font-black text-white text-xl sm:text-2xl shadow-xl cursor-pointer transition-transform hover:scale-110 active:scale-90 border-2 border-white/60';
+
+        const colors = [
+          'from-pink-400 to-rose-500',
+          'from-cyan-400 to-blue-500',
+          'from-amber-400 to-orange-500',
+          'from-purple-400 to-violet-600',
+          'from-lime-400 to-emerald-500'
+        ];
+        bubble.classList.add('bg-gradient-to-tr', ...colors[idx % colors.length].split(' '));
+
+        const size = Math.floor(Math.random() * 14) + 64;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+
+        const leftPercent = 8 + (idx * 18);
+        const topPercent = 15 + Math.random() * 40;
+
+        bubble.style.left = `${leftPercent}%`;
+        bubble.style.top = `${topPercent}%`;
+        bubble.textContent = num;
+        bubble.style.animation = `bounceGentle ${2 + Math.random()}s ease-in-out infinite alternate`;
+
+        bubble.onclick = () => handleBubbleClick(num, bubble);
+        stage.appendChild(bubble);
+      });
+    }
+
+    function handleBubbleClick(num, bubbleEl) {
+      if (num === state.bubbleTarget.ans) {
+        SoundManager.playPop();
+        SoundManager.playCorrect();
+        recordDailyPractice();
+
+        bubbleEl.style.transform = 'scale(1.4)';
+        bubbleEl.style.opacity = '0';
+        bubbleEl.style.transition = 'all 0.25s ease-out';
+
+        state.bubbleScoreVal++;
+        document.getElementById('bubbleScore').textContent = state.bubbleScoreVal;
+        addStars(1);
+
+        const cheer = CINNAMON_CHEERS.correct[Math.floor(Math.random() * CINNAMON_CHEERS.correct.length)];
+        cinnamonSpeak(cheer, false);
+
+        setTimeout(() => {
+          pickBubbleTarget();
+          spawnBubbleSet();
+        }, 300);
+      } else {
+        SoundManager.playWrong();
+        bubbleEl.classList.add('ring-4', 'ring-rose-400');
+        setTimeout(() => bubbleEl.classList.remove('ring-4', 'ring-rose-400'), 400);
+        cinnamonSpeak("Oops, not that one! Look for the answer to the top equation! 🫧🦄", false);
+      }
+    }
+
+    function bubbleGameOver() {
+      SoundManager.playFanfare();
+      confetti({ particleCount: 70, spread: 60 });
+      showModal(
+        "Time's Up! 🫧",
+        `Pop-tastic! You scored ${state.bubbleScoreVal} points and collected shimmering stars!`,
+        () => switchView('home')
+      );
+    }
+
+    function renderBadgesGrid() {
+      const grid = document.getElementById('trophyBadgesGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 12; i++) {
+        const solved = state.badges[i] || 0;
+        const isMastered = solved >= 10;
+
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border-2 text-center flex flex-col items-center justify-between ${
+          isMastered
+            ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-sm'
+            : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'
+        }`;
+
+        card.innerHTML = `
+          <span class="text-3xl mb-1">${isMastered ? '🥇' : '🔒'}</span>
+          <span class="text-xs font-black">Table ${i}</span>
+          <span class="text-[10px] font-bold mt-1">${isMastered ? 'Mastered!' : `${solved}/10 solved`}</span>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function renderStickersGrid() {
+      const grid = document.getElementById('stickerAlbumGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      STICKERS.forEach(s => {
+        const unlocked = state.stars >= s.cost;
+        const item = document.createElement('div');
+        item.className = `p-4 rounded-3xl border-2 text-center transition flex flex-col items-center justify-between ${
+          unlocked
+            ? 'bg-gradient-to-b from-purple-50 to-pink-50 border-pink-300 text-slate-800 shadow-sm transform hover:scale-105'
+            : 'bg-slate-50 border-slate-200 text-slate-400 opacity-50'
+        }`;
+
+        item.innerHTML = `
+          <span class="text-4xl mb-2">${unlocked ? s.emoji : '❓'}</span>
+          <span class="text-xs font-black block">${unlocked ? s.name : 'Secret Sticker'}</span>
+          <span class="text-[10px] font-bold ${unlocked ? 'text-pink-600' : 'text-slate-400'} mt-1">
+            ${unlocked ? 'Unlocked! ✨' : `Needs ${s.cost} ⭐`}
+          </span>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    let modalCallback = null;
+
+    function showModal(title, bodyText, callback = null) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = bodyText;
+      modalCallback = callback;
+      const modal = document.getElementById('appModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('appModal');
+      if (modal) modal.classList.add('hidden');
+      if (typeof modalCallback === 'function') {
+        modalCallback();
+        modalCallback = null;
+      }
+    }
+
+    function showStreakInfoModal() {
+      document.getElementById('streakModalCurrent').textContent = `${state.streak} Days`;
+      document.getElementById('streakModalBest').textContent = `${state.bestStreak} Days`;
+      const modal = document.getElementById('streakModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeStreakModal() {
+      const modal = document.getElementById('streakModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    window.onload = function () {
+      loadUserData();
+      initTableSelector();
+      renderBadgesGrid();
+      renderStickersGrid();
+      switchView('title');
+
+      window.addEventListener('click', () => {
+        SoundManager.init();
+      }, { once: true });
+    };
+  </script>
+</body>
+</html>
