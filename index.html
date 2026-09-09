@@ -106,6 +106,15 @@
           <span>🗺️</span> Realms
         </button>
 
+        <!-- Math Adventure Arcade Launcher Button -->
+        <button id="arcadeHeaderBtn" onclick="switchView('arcade')" class="flex items-center gap-1.5 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-700 hover:to-indigo-700 border-2 border-fuchsia-300 px-2.5 sm:px-3 py-1 rounded-2xl text-white font-black shadow-md transition active:scale-95 text-xs sm:text-sm animate-pulse" title="Math Adventure Arcade">
+          <span class="text-base">🕹️</span>
+          <span class="hidden xs:inline">Arcade</span>
+          <span class="bg-amber-300 text-amber-950 text-[10px] px-1.5 py-0.5 rounded-full font-black flex items-center gap-0.5 shadow-sm">
+            <span>🎟️</span><span id="topTicketCount">0</span>
+          </span>
+        </button>
+
         <!-- Daily Streak Counter Badge -->
         <button id="streakBtn" onclick="showStreakInfoModal()" class="flex items-center gap-1.5 bg-orange-100 hover:bg-orange-200 border-2 border-orange-300 px-2.5 sm:px-3 py-1 rounded-2xl text-orange-900 font-bold shadow-sm transition active:scale-95" title="Daily Practice Streak">
           <span class="text-lg animate-bounce-gentle">🔥</span>
@@ -271,6 +280,32 @@
               <span>💎</span> Enter Realm
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Math Adventure Arcade Featured Banner -->
+      <div onclick="switchView('arcade')" class="group cursor-pointer relative overflow-hidden bg-gradient-to-r from-fuchsia-600 via-purple-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-2xl border-4 border-fuchsia-300 transform hover:-translate-y-1 transition duration-300">
+        <div class="absolute -right-8 -bottom-8 text-9xl opacity-15 pointer-events-none select-none group-hover:scale-110 transition-transform">
+          🕹️
+        </div>
+        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-4 text-center sm:text-left">
+            <div class="w-20 h-20 bg-black/30 backdrop-blur-md rounded-3xl flex items-center justify-center text-5xl shadow-inner border-2 border-fuchsia-400/50 group-hover:rotate-6 transition-transform">
+              👾
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1.5 bg-yellow-400 text-yellow-950 text-xs uppercase font-black px-3 py-1 rounded-full mb-1.5 shadow">
+                <span>⭐ NEW ZONE ⭐</span>
+              </div>
+              <h3 class="text-2xl sm:text-3xl font-black tracking-wide drop-shadow">Math Adventure Arcade</h3>
+              <p class="text-xs sm:text-sm font-quicksand font-bold text-fuchsia-200 mt-1 max-w-lg">
+                Play Whack-A-Math and Meteor Space Blaster! Win tickets, hit high scores, and unlock prizes with Cinnamon!
+              </p>
+            </div>
+          </div>
+          <button class="px-6 py-3.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-900 font-black rounded-2xl shadow-xl transition active:scale-95 text-base flex items-center gap-2 whitespace-nowrap">
+            <span>🕹️</span> Enter Arcade!
+          </button>
         </div>
       </div>
 
@@ -658,6 +693,200 @@
       </div>
     </div>
 
+    <!-- VIEW 8: MATH ADVENTURE ARCADE HUB & GAMES -->
+    <div id="view-arcade" class="hidden space-y-6 animate-pop-in">
+      
+      <!-- Top Bar: Back button, operation picker & ticket balance -->
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <button onclick="switchView('title')" class="px-4 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-slate-700 text-sm shadow-sm flex items-center gap-1.5 transition active:scale-95">
+            <span>⬅️</span> Title Menu
+          </button>
+          <button onclick="switchView('home')" class="px-3.5 py-2 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-2xl font-bold text-purple-900 text-xs sm:text-sm shadow-sm flex items-center gap-1 transition active:scale-95">
+            <span>🗺️</span> Safari Realm
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 border-2 border-amber-500 px-3 py-1.5 rounded-2xl text-amber-950 font-black shadow-md text-sm">
+            <span>🎟️ Tickets:</span>
+            <span id="arcadeTicketsCount" class="text-base font-black">0</span>
+          </div>
+          <button onclick="ArcadeEngine.convertTicketsToStars()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs rounded-2xl shadow transition active:scale-95" title="Trade 5 Tickets for 3 Stars">
+            Exchange 5🎟️ ➔ 3⭐
+          </button>
+        </div>
+      </div>
+
+      <!-- Arcade Header Neon Marquee -->
+      <div class="relative overflow-hidden bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-2xl border-4 border-fuchsia-500/80">
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 bg-fuchsia-500/20 border border-fuchsia-400/40 px-3 py-1 rounded-full text-xs font-black uppercase text-fuchsia-300 tracking-wider mb-2">
+              <span>🕹️ ARCADE ZONE</span>
+              <span>•</span>
+              <span id="arcadeCurrentOpBadge">Multiplication Mode</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-pink-400 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent drop-shadow">
+              Math Adventure Arcade
+            </h2>
+            <p class="text-xs sm:text-sm font-quicksand font-bold text-purple-200 mt-1">
+              Select a game below, race the clock, pop targets, and fill your pockets with shiny arcade tickets!
+            </p>
+          </div>
+
+          <!-- Operation Selector for Arcade -->
+          <div class="flex items-center gap-1 bg-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-purple-500/40">
+            <button onclick="ArcadeEngine.setArcadeOp('multiply')" id="arcOpBtn-multiply" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs bg-fuchsia-600 text-white shadow">✖️</button>
+            <button onclick="ArcadeEngine.setArcadeOp('divide')" id="arcOpBtn-divide" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10">➗</button>
+            <button onclick="ArcadeEngine.setArcadeOp('add')" id="arcOpBtn-add" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10">➕</button>
+            <button onclick="ArcadeEngine.setArcadeOp('subtract')" id="arcOpBtn-subtract" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10">➖</button>
+            <button onclick="ArcadeEngine.setArcadeOp('fraction')" id="arcOpBtn-fraction" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10">🍕</button>
+            <button onclick="ArcadeEngine.setArcadeOp('geometry')" id="arcOpBtn-geometry" class="arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10">📐</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arcade Game Picker Tabs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Game Tab 1: Whack-A-Math -->
+        <div onclick="ArcadeEngine.openGame('whack')" id="gameCard-whack" class="cursor-pointer bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border-4 border-amber-300 rounded-3xl p-5 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-4xl shadow-md text-white">
+              🦔
+            </div>
+            <div>
+              <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-200/80 px-2 py-0.5 rounded-full">Reflex Smasher</span>
+              <h4 class="text-xl font-black text-slate-800">Whack-A-Math!</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600">Whack the cute critter popping up with the right answer!</p>
+            </div>
+          </div>
+          <span class="text-2xl text-amber-600 font-black">➔</span>
+        </div>
+
+        <!-- Game Tab 2: Meteor Math Blaster -->
+        <div onclick="ArcadeEngine.openGame('blaster')" id="gameCard-blaster" class="cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-4 border-purple-300 rounded-3xl p-5 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 active:scale-95 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-4xl shadow-md text-white">
+              ☄️
+            </div>
+            <div>
+              <span class="text-[10px] font-black uppercase text-purple-700 bg-purple-200/80 px-2 py-0.5 rounded-full">Retro Space Shooter</span>
+              <h4 class="text-xl font-black text-slate-800">Meteor Blaster</h4>
+              <p class="text-xs font-quicksand font-bold text-slate-600">Blast falling space meteors before they hit Cinnamon's shield!</p>
+            </div>
+          </div>
+          <span class="text-2xl text-purple-600 font-black">➔</span>
+        </div>
+      </div>
+
+      <!-- ARCADE ACTIVE GAME CONTAINER -->
+      <div id="arcadeActiveStage" class="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border-4 border-purple-200 min-h-[460px]">
+        
+        <!-- SUB-GAME 1: WHACK-A-MATH -->
+        <div id="subgame-whack" class="space-y-6">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">🦔</span>
+              <div>
+                <h3 class="text-xl font-black text-slate-800">Whack-A-Math Safari!</h3>
+                <p class="text-xs font-quicksand font-bold text-slate-500">Tap the critter holding the matching answer!</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-black bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full">
+                Score: <span id="whackScore">0</span>
+              </span>
+              <span class="text-xs font-black bg-rose-100 text-rose-900 border border-rose-300 px-3 py-1 rounded-full">
+                ⏳ <span id="whackTimer">30</span>s
+              </span>
+            </div>
+          </div>
+
+          <!-- Equation Display Board -->
+          <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white rounded-2xl p-4 shadow-md text-center max-w-sm mx-auto">
+            <span class="text-[11px] font-black uppercase tracking-widest text-amber-100 block">Current Target:</span>
+            <span id="whackTargetEquation" class="text-3xl sm:text-4xl font-black tracking-wide drop-shadow">
+              4 × 6 = ?
+            </span>
+          </div>
+
+          <!-- 6-Hole Whack Grid -->
+          <div class="grid grid-cols-3 gap-3 sm:gap-6 max-w-md mx-auto" id="whackGrid">
+            <!-- 6 Holes populated by JS -->
+          </div>
+
+          <!-- Whack Start / Restart Controls -->
+          <div class="text-center">
+            <button id="whackStartBtn" onclick="ArcadeEngine.startWhackGame()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-base rounded-2xl shadow-lg transition active:scale-95">
+              ▶️ Start Whack-A-Math!
+            </button>
+          </div>
+        </div>
+
+        <!-- SUB-GAME 2: METEOR BLASTER -->
+        <div id="subgame-blaster" class="hidden space-y-5">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">🚀</span>
+              <div>
+                <h3 class="text-xl font-black text-slate-800">Meteor Space Blaster</h3>
+                <p class="text-xs font-quicksand font-bold text-slate-500">Shoot the falling meteors before they breach the safari shield!</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-black bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-full">
+                Meteors Blasted: <span id="blasterScore">0</span>
+              </span>
+              <span class="text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-full">
+                Shield: <span id="blasterShield">100%</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Space Canvas Arena -->
+          <div id="blasterArena" class="relative bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 rounded-3xl h-80 sm:h-96 w-full overflow-hidden border-4 border-indigo-500/50 shadow-2xl flex flex-col justify-between p-4 select-none">
+            
+            <!-- Stars background texture -->
+            <div class="absolute inset-0 opacity-25 pointer-events-none text-xs text-indigo-300 select-none leading-loose">
+              ✨ . . . . 🌟 . . . . ✨ . . . 🌟 . . . ✨ . . . 🌟 . . . ✨ . . .
+            </div>
+
+            <!-- Falling Meteors Area -->
+            <div id="blasterMeteorsContainer" class="relative flex-grow w-full">
+              <!-- Animated meteors spawn here -->
+            </div>
+
+            <!-- Target Equation HUD & Cannon Row -->
+            <div class="relative z-10 bg-black/60 backdrop-blur-md rounded-2xl p-3 border border-indigo-400/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
+              <div class="text-center sm:text-left">
+                <span class="text-[10px] uppercase font-black tracking-widest text-indigo-300 block">Target Problem:</span>
+                <span id="blasterTargetEquation" class="text-2xl sm:text-3xl font-black text-yellow-300">3 × 7 = ?</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-2xl animate-bounce-gentle">🛸</span>
+                <span class="text-xs font-bold text-indigo-200">Tap meteor with correct answer to fire lasers!</span>
+              </div>
+            </div>
+
+            <!-- Shield Health Bar -->
+            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-indigo-400/30">
+              <div id="blasterShieldBar" class="bg-gradient-to-r from-emerald-400 to-teal-300 h-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+          </div>
+
+          <!-- Blaster Start Button -->
+          <div class="text-center">
+            <button id="blasterStartBtn" onclick="ArcadeEngine.startBlasterGame()" class="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-base rounded-2xl shadow-lg transition active:scale-95">
+              ▶️ Launch Space Defense!
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
   </main>
 
   <!-- Mascot Floating Widget -->
@@ -1002,6 +1231,8 @@
     let state = {
       currentView: 'title',
       operation: 'multiply',
+      arcadeOp: 'multiply',
+      arcadeTickets: 0,
       mascotMinimized: false,
       selectedTable: 'all',
       stars: 0,
@@ -1077,6 +1308,33 @@
         notes.forEach((f, idx) => {
           setTimeout(() => this.playTone(f, 'triangle', 0.2, 0.25), idx * 120);
         });
+      },
+      playLaser() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.18);
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.18);
+        } catch (e) {}
+      },
+      playArcadeCoin() {
+        if (this.muted) return;
+        this.playTone(987.77, 'square', 0.09, 0.12);
+        setTimeout(() => this.playTone(1318.51, 'square', 0.22, 0.15), 90);
+      },
+      playSmash() {
+        this.playTone(180, 'triangle', 0.12, 0.25);
+        setTimeout(() => this.playTone(110, 'sawtooth', 0.15, 0.2), 60);
       }
     };
 
@@ -1617,6 +1875,7 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           state.stars = parsed.stars || 0;
+          state.arcadeTickets = parsed.arcadeTickets || 0;
           state.badges = parsed.badges || {};
           state.streak = parsed.streak || 0;
           state.bestStreak = parsed.bestStreak || 0;
@@ -1631,6 +1890,7 @@
       try {
         const payload = {
           stars: state.stars,
+          arcadeTickets: state.arcadeTickets,
           badges: state.badges,
           streak: state.streak,
           bestStreak: state.bestStreak,
@@ -1694,6 +1954,12 @@
       const starEl = document.getElementById('topStarCount');
       if (starEl) starEl.textContent = state.stars;
 
+      const ticketEl = document.getElementById('topTicketCount');
+      if (ticketEl) ticketEl.textContent = state.arcadeTickets;
+
+      const arcadeTicketEl = document.getElementById('arcadeTicketsCount');
+      if (arcadeTicketEl) arcadeTicketEl.textContent = state.arcadeTickets;
+
       const streakEl = document.getElementById('topStreakCount');
       if (streakEl) streakEl.textContent = state.streak;
 
@@ -1711,49 +1977,15 @@
       if (heroBadges) heroBadges.textContent = `${badgeKeys.length}/12`;
     }
 
-    function cinnamonSpeak(text, playSound = true) {
-      const txtEl = document.getElementById('cinnamonText');
-      if (txtEl) txtEl.textContent = text;
-      if (playSound) SoundManager.playSparkle();
-
-      const bubble = document.getElementById('cinnamonBubble');
-      if (bubble) {
-        bubble.classList.remove('animate-pop-in');
-        void bubble.offsetWidth;
-        bubble.classList.add('animate-pop-in');
-      }
-    }
-
-    function cinnamonRandomCheer() {
-      const list = CINNAMON_CHEERS.random;
-      const pick = list[Math.floor(Math.random() * list.length)];
-      cinnamonSpeak(pick, true);
-    }
-
-    function toggleMascotMinimize(event) {
-      if (event) event.stopPropagation();
-      state.mascotMinimized = !state.mascotMinimized;
-      const fullView = document.getElementById('cinnamonFullView');
-      const minTab = document.getElementById('cinnamonMinimizedTab');
-      if (state.mascotMinimized) {
-        if (fullView) fullView.classList.add('hidden');
-        if (minTab) minTab.classList.remove('hidden');
-        SoundManager.playPop();
-      } else {
-        if (fullView) fullView.classList.remove('hidden');
-        if (minTab) minTab.classList.add('hidden');
-        SoundManager.playSparkle();
-        cinnamonSpeak("I'm back! Let's explore math together! 🦄✨", false);
-      }
-    }
-
     function switchView(viewName) {
       if (state.bubbleTimerId) {
         clearInterval(state.bubbleTimerId);
         state.bubbleTimerId = null;
       }
 
-      const views = ['title', 'home', 'explorer', 'flashcards', 'rocket', 'bubbles', 'trophies'];
+      ArcadeEngine.cleanup();
+
+      const views = ['title', 'home', 'explorer', 'flashcards', 'rocket', 'bubbles', 'trophies', 'arcade'];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.classList.add('hidden');
@@ -1775,6 +2007,10 @@
         }
       }
 
+      if (viewName === 'arcade') {
+        ArcadeEngine.init();
+      }
+
       const greetings = {
         title: "Welcome to Math Safari! Which math realm shall we explore? 🦄🧭",
         home: OPERATIONS[state.operation]?.cinnamonGreeting || "Pick any fun activity below! 🦁🦄",
@@ -1782,11 +2018,439 @@
         flashcards: "Flashcard time! Guess the answer and flip when you're ready! 🃏💫",
         rocket: "3, 2, 1... Answer questions to fuel our friendly space rocket! 🚀🌌",
         bubbles: "Pop, pop, pop! Find the bubble with the magic answer! 🫧🦄",
-        trophies: "Look at all your glittering badges and sticker treasures! 🏆✨"
+        trophies: "Look at all your glittering badges and sticker treasures! 🏆✨",
+        arcade: "WELCOME TO THE ARCADE! 🕹️ Insert coin, pick a game, and win tickets! 🦄🎟️"
       };
 
       if (greetings[viewName]) {
         cinnamonSpeak(greetings[viewName], false);
+      }
+    }
+
+    const ArcadeEngine = {
+      activeGame: 'whack',
+      whackScore: 0,
+      whackTime: 30,
+      whackTimerId: null,
+      whackIntervalId: null,
+      whackTarget: null,
+      whackHoles: 6,
+
+      blasterScore: 0,
+      blasterShield: 100,
+      blasterTimerId: null,
+      blasterTarget: null,
+      blasterMeteors: [],
+      blasterIntervals: [],
+
+      init() {
+        this.openGame(this.activeGame);
+        this.renderHoles();
+      },
+
+      setArcadeOp(op) {
+        if (!OPERATIONS[op]) return;
+        state.arcadeOp = op;
+        SoundManager.playPop();
+
+        const badge = document.getElementById('arcadeCurrentOpBadge');
+        if (badge) badge.textContent = `${OPERATIONS[op].name} Mode`;
+
+        ['multiply', 'divide', 'add', 'subtract', 'fraction', 'geometry'].forEach(o => {
+          const btn = document.getElementById(`arcOpBtn-${o}`);
+          if (btn) {
+            if (o === op) {
+              btn.className = 'arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs bg-fuchsia-600 text-white shadow ring-2 ring-fuchsia-300';
+            } else {
+              btn.className = 'arc-op-btn px-2.5 py-1.5 rounded-xl font-black text-xs text-slate-300 hover:bg-white/10';
+            }
+          }
+        });
+
+        cinnamonSpeak(`Arcade set to ${OPERATIONS[op].name}! Let's crush high scores! 🕹️✨`, false);
+      },
+
+      openGame(gameKey) {
+        this.cleanup();
+        this.activeGame = gameKey;
+
+        const subWhack = document.getElementById('subgame-whack');
+        const subBlaster = document.getElementById('subgame-blaster');
+        const cardWhack = document.getElementById('gameCard-whack');
+        const cardBlaster = document.getElementById('gameCard-blaster');
+
+        if (gameKey === 'whack') {
+          if (subWhack) subWhack.classList.remove('hidden');
+          if (subBlaster) subBlaster.classList.add('hidden');
+          if (cardWhack) cardWhack.classList.add('ring-4', 'ring-amber-400');
+          if (cardBlaster) cardBlaster.classList.remove('ring-4', 'ring-purple-400');
+          this.renderHoles();
+        } else {
+          if (subWhack) subWhack.classList.add('hidden');
+          if (subBlaster) subBlaster.classList.remove('hidden');
+          if (cardWhack) cardWhack.classList.remove('ring-4', 'ring-amber-400');
+          if (cardBlaster) cardBlaster.classList.add('ring-4', 'ring-purple-400');
+        }
+      },
+
+      cleanup() {
+        if (this.whackTimerId) clearInterval(this.whackTimerId);
+        if (this.whackIntervalId) clearInterval(this.whackIntervalId);
+        if (this.blasterTimerId) clearInterval(this.blasterTimerId);
+        if (this.blasterIntervals) {
+          this.blasterIntervals.forEach(id => clearInterval(id));
+          this.blasterIntervals = [];
+        }
+        this.whackTimerId = null;
+        this.whackIntervalId = null;
+        this.blasterTimerId = null;
+
+        const container = document.getElementById('blasterMeteorsContainer');
+        if (container) container.innerHTML = '';
+      },
+
+      clearBlasterMeteors() {
+        if (this.blasterIntervals) {
+          this.blasterIntervals.forEach(id => clearInterval(id));
+          this.blasterIntervals = [];
+        }
+        const container = document.getElementById('blasterMeteorsContainer');
+        if (container) container.innerHTML = '';
+      },
+
+      generateArcadeProblem() {
+        const op = state.arcadeOp || state.operation || 'multiply';
+        let n1 = (op === 'fraction') ? [2, 3, 4, 5, 6, 8][Math.floor(Math.random() * 6)]
+          : (op === 'geometry') ? [3, 4, 5, 6, 8, 11][Math.floor(Math.random() * 6)]
+          : Math.floor(Math.random() * 10) + 2;
+        let n2 = Math.floor(Math.random() * 8) + 2;
+        return createProblem(n1, n2, op);
+      },
+
+      // --- 1. WHACK-A-MATH IMPLEMENTATION ---
+      renderHoles() {
+        const grid = document.getElementById('whackGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        for (let i = 0; i < 6; i++) {
+          const hole = document.createElement('div');
+          hole.className = 'relative bg-gradient-to-b from-amber-800 to-amber-950 rounded-3xl h-28 sm:h-32 border-4 border-amber-900 shadow-inner flex flex-col justify-end items-center overflow-hidden';
+          hole.innerHTML = `
+            <div id="whackCritter-${i}" class="absolute -bottom-24 transition-all duration-300 transform flex flex-col items-center cursor-pointer select-none">
+              <span id="whackBadge-${i}" class="bg-amber-100 border-2 border-amber-400 text-amber-950 font-black text-sm px-2.5 py-0.5 rounded-full shadow-md -mb-2 z-10">?</span>
+              <span class="text-4xl sm:text-5xl">🦔</span>
+            </div>
+            <div class="w-full h-5 bg-amber-900/90 rounded-b-2xl z-20 border-t-2 border-amber-950"></div>
+          `;
+          grid.appendChild(hole);
+        }
+      },
+
+      startWhackGame() {
+        this.cleanup();
+        this.whackScore = 0;
+        this.whackTime = 30;
+
+        document.getElementById('whackScore').textContent = '0';
+        document.getElementById('whackTimer').textContent = '30';
+        const startBtn = document.getElementById('whackStartBtn');
+        if (startBtn) startBtn.textContent = '🔄 Restart Game';
+
+        SoundManager.playArcadeCoin();
+        cinnamonSpeak("Go, go, go! Whack the critter holding the right answer! 🦔💥", false);
+
+        this.nextWhackTurn();
+
+        this.whackTimerId = setInterval(() => {
+          this.whackTime--;
+          const timerEl = document.getElementById('whackTimer');
+          if (timerEl) timerEl.textContent = this.whackTime;
+
+          if (this.whackTime <= 0) {
+            this.endWhackGame();
+          }
+        }, 1000);
+      },
+
+      nextWhackTurn() {
+        const prob = this.generateArcadeProblem();
+        this.whackTarget = prob;
+        const eqEl = document.getElementById('whackTargetEquation');
+        if (eqEl) eqEl.textContent = `${prob.text} = ?`;
+
+        for (let i = 0; i < 6; i++) {
+          const critter = document.getElementById(`whackCritter-${i}`);
+          if (critter) critter.className = 'absolute -bottom-24 transition-all duration-300 transform flex flex-col items-center cursor-pointer select-none';
+        }
+
+        const correctAns = prob.ans;
+        const answers = [correctAns];
+
+        while (answers.length < 3) {
+          const offset = (Math.floor(Math.random() * 7) - 3);
+          const fake = correctAns + (offset === 0 ? 2 : offset);
+          if (fake >= 0 && !answers.includes(fake)) answers.push(fake);
+        }
+
+        const activeHoles = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5).slice(0, 3);
+
+        activeHoles.forEach((holeIdx, i) => {
+          const critter = document.getElementById(`whackCritter-${holeIdx}`);
+          const badge = document.getElementById(`whackBadge-${holeIdx}`);
+          const ansVal = answers[i];
+
+          if (badge) badge.textContent = ansVal;
+          if (critter) {
+            critter.className = 'absolute bottom-2 transition-all duration-300 transform hover:scale-110 flex flex-col items-center cursor-pointer select-none';
+            critter.onclick = () => this.hitCritter(holeIdx, ansVal === correctAns);
+          }
+        });
+      },
+
+      hitCritter(holeIdx, isCorrect) {
+        const critter = document.getElementById(`whackCritter-${holeIdx}`);
+        if (!critter) return;
+
+        if (isCorrect) {
+          SoundManager.playSmash();
+          SoundManager.playCorrect();
+          recordDailyPractice();
+
+          this.whackScore += 10;
+          document.getElementById('whackScore').textContent = this.whackScore;
+
+          critter.className = 'absolute bottom-2 transition-all duration-150 transform scale-125 opacity-70 flex flex-col items-center cursor-pointer select-none';
+          
+          this.awardArcadeTickets(1);
+
+          setTimeout(() => {
+            if (this.whackTime > 0) this.nextWhackTurn();
+          }, 250);
+        } else {
+          SoundManager.playWrong();
+          critter.className = 'absolute bottom-2 transition-all duration-150 ring-4 ring-rose-500 rounded-full flex flex-col items-center cursor-pointer select-none';
+          cinnamonSpeak("Missed! Check the equation at the top! 🦔", false);
+        }
+      },
+
+      endWhackGame() {
+        this.cleanup();
+        SoundManager.playFanfare();
+        confetti({ particleCount: 70, spread: 60 });
+
+        const ticketsWon = Math.floor(this.whackScore / 10);
+        showModal(
+          "Arcade Ticket Splash! 🎟️",
+          `Awesome reflex smashing! You scored ${this.whackScore} points and collected ${ticketsWon} Arcade Tickets!`,
+          () => switchView('arcade')
+        );
+      },
+
+      // --- 2. METEOR BLASTER IMPLEMENTATION ---
+      startBlasterGame() {
+        this.cleanup();
+        this.blasterScore = 0;
+        this.blasterShield = 100;
+
+        document.getElementById('blasterScore').textContent = '0';
+        document.getElementById('blasterShield').textContent = '100%';
+        document.getElementById('blasterShieldBar').style.width = '100%';
+        const startBtn = document.getElementById('blasterStartBtn');
+        if (startBtn) startBtn.textContent = '🔄 Restart Mission';
+
+        SoundManager.playLaser();
+        cinnamonSpeak("Lasers active! Tap falling meteors matching the equation to vaporize them! ☄️💥", false);
+
+        this.spawnBlasterWave();
+      },
+
+      spawnBlasterWave() {
+        if (this.blasterShield <= 0) return;
+        this.clearBlasterMeteors();
+
+        const prob = this.generateArcadeProblem();
+        this.blasterTarget = prob;
+        const targetEq = document.getElementById('blasterTargetEquation');
+        if (targetEq) targetEq.textContent = `${prob.text} = ?`;
+
+        const container = document.getElementById('blasterMeteorsContainer');
+        if (!container) return;
+
+        const correct = prob.ans;
+        const candidates = [correct];
+
+        while (candidates.length < 3) {
+          const off = (Math.floor(Math.random() * 7) - 3);
+          const f = correct + (off === 0 ? 3 : off);
+          if (f >= 0 && !candidates.includes(f)) candidates.push(f);
+        }
+
+        candidates.sort(() => Math.random() - 0.5);
+
+        // Dynamically compute the ground level where meteors touch the bottom shield
+        const groundY = Math.max(210, (container.clientHeight || 280) - 72);
+
+        candidates.forEach((val, idx) => {
+          const meteor = document.createElement('div');
+          meteor.className = 'arcade-meteor absolute cursor-pointer rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-600 to-yellow-500 p-2 text-white font-black shadow-2xl border-2 border-white/60 flex flex-col items-center justify-center transform hover:scale-110 active:scale-95 transition-transform';
+          meteor.style.left = `${15 + (idx * 28)}%`;
+          meteor.style.top = '6px';
+          meteor.style.width = '70px';
+          meteor.style.height = '70px';
+
+          meteor.innerHTML = `
+            <span class="text-xl select-none">☄️</span>
+            <span class="text-sm font-black text-yellow-200 drop-shadow">${val}</span>
+          `;
+
+          meteor.onclick = () => this.shootMeteor(val, meteor);
+          container.appendChild(meteor);
+
+          // Animate meteor falling downwards until it physically hits the ground
+          let topPos = 6;
+          const dropInterval = setInterval(() => {
+            if (this.blasterShield <= 0) {
+              clearInterval(dropInterval);
+              return;
+            }
+            topPos += 1.6;
+            meteor.style.top = `${topPos}px`;
+
+            if (topPos >= groundY) {
+              clearInterval(dropInterval);
+              meteor.remove();
+
+              if (val === correct) {
+                // Shield takes damage ONLY when the target meteor physically crashes into the ground
+                this.blasterShield = Math.max(0, this.blasterShield - 25);
+                document.getElementById('blasterShield').textContent = `${this.blasterShield}%`;
+                document.getElementById('blasterShieldBar').style.width = `${this.blasterShield}%`;
+                SoundManager.playWrong();
+
+                const arena = document.getElementById('blasterArena');
+                if (arena) {
+                  arena.classList.add('ring-4', 'ring-rose-500');
+                  setTimeout(() => arena.classList.remove('ring-4', 'ring-rose-500'), 350);
+                }
+
+                cinnamonSpeak("Shield breached! The target meteor hit the ground! 💥", false);
+
+                this.clearBlasterMeteors();
+
+                if (this.blasterShield <= 0) {
+                  this.endBlasterGame();
+                } else {
+                  setTimeout(() => {
+                    if (this.blasterShield > 0) this.spawnBlasterWave();
+                  }, 400);
+                }
+              }
+            }
+          }, 50);
+
+          this.blasterIntervals.push(dropInterval);
+        });
+      },
+
+      shootMeteor(val, el) {
+        SoundManager.playLaser();
+        if (val === this.blasterTarget.ans) {
+          SoundManager.playCorrect();
+          recordDailyPractice();
+
+          this.blasterScore++;
+          document.getElementById('blasterScore').textContent = this.blasterScore;
+          this.awardArcadeTickets(1);
+
+          el.style.transform = 'scale(1.8) rotate(20deg)';
+          el.style.opacity = '0';
+          el.style.transition = 'all 0.2s ease-out';
+
+          // Clear remaining falling meteors for this wave immediately
+          if (this.blasterIntervals) {
+            this.blasterIntervals.forEach(id => clearInterval(id));
+            this.blasterIntervals = [];
+          }
+
+          setTimeout(() => {
+            this.spawnBlasterWave();
+          }, 300);
+        } else {
+          SoundManager.playWrong();
+          el.classList.add('ring-4', 'ring-rose-500');
+          setTimeout(() => el.classList.remove('ring-4', 'ring-rose-500'), 300);
+        }
+      },
+
+      endBlasterGame() {
+        this.cleanup();
+        SoundManager.playFanfare();
+        confetti({ particleCount: 75, spread: 70 });
+        showModal(
+          "Mission Report 🚀",
+          `Shield breached! You blasted ${this.blasterScore} space meteors and earned shiny arcade tickets!`,
+          () => switchView('arcade')
+        );
+      },
+
+      awardArcadeTickets(num) {
+        state.arcadeTickets += num;
+        saveUserData();
+        updateTopCounters();
+      },
+
+      convertTicketsToStars() {
+        if (state.arcadeTickets < 5) {
+          cinnamonSpeak("You need at least 5 Arcade Tickets to exchange for stars! Keep playing! 🎟️✨", true);
+          return;
+        }
+
+        state.arcadeTickets -= 5;
+        addStars(3);
+        SoundManager.playArcadeCoin();
+        confetti({ particleCount: 40, spread: 40 });
+        cinnamonSpeak("Woohoo! Exchanged 5 Tickets for 3 Stars! ⭐🎟️", true);
+        saveUserData();
+      }
+    };
+
+    function cinnamonSpeak(text, playSound = false) {
+      const el = document.getElementById('cinnamonText');
+      if (el) el.textContent = text;
+
+      const bubble = document.getElementById('cinnamonBubble');
+      if (bubble) {
+        bubble.classList.remove('animate-bounce-gentle');
+        void bubble.offsetWidth;
+        bubble.classList.add('animate-bounce-gentle');
+      }
+
+      if (playSound) {
+        SoundManager.playSparkle();
+      }
+    }
+
+    function cinnamonRandomCheer() {
+      const cheers = CINNAMON_CHEERS.random;
+      const quote = cheers[Math.floor(Math.random() * cheers.length)];
+      cinnamonSpeak(quote, true);
+    }
+
+    function toggleMascotMinimize(e) {
+      if (e) e.stopPropagation();
+      state.mascotMinimized = !state.mascotMinimized;
+      const full = document.getElementById('cinnamonFullView');
+      const tab = document.getElementById('cinnamonMinimizedTab');
+      if (full && tab) {
+        if (state.mascotMinimized) {
+          full.classList.add('hidden');
+          tab.classList.remove('hidden');
+        } else {
+          full.classList.remove('hidden');
+          tab.classList.add('hidden');
+          cinnamonSpeak("I'm back! Let's explore together! 🦄✨", false);
+        }
       }
     }
 
